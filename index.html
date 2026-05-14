@@ -2190,8 +2190,13 @@ const AdminPanel = ({ onSave }) => {
 
 // ===== azbuka/App.jsx =====
 // Main App — routing + global state
+const getHashPage = () => {
+  const h = window.location.hash.replace('#', '').trim();
+  return h || 'landing';
+};
+
 const App = () => {
-  const [page, setPageRaw] = React.useState(() => localStorage.getItem('az_page') || 'landing');
+  const [page, setPageRaw] = React.useState(getHashPage);
   const [currentUser, setCurrentUser] = React.useState(() => {
     try {return JSON.parse(localStorage.getItem('az_user'));} catch {return null;}
   });
@@ -2208,9 +2213,16 @@ const App = () => {
 
   const setPage = (p) => {
     setPageRaw(p);
-    localStorage.setItem('az_page', p);
+    window.location.hash = p === 'landing' ? '' : p;
     window.scrollTo({ top: 0 });
   };
+
+  // Слушаем браузерную кнопку «Назад»
+  React.useEffect(() => {
+    const onHash = () => setPageRaw(getHashPage());
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
 
   const handleLogin = (user) => {
     setCurrentUser(user);
@@ -2294,7 +2306,7 @@ const App = () => {
           </div>
           <div style={{ marginTop: 16, fontSize: 12, color: '#d0cadf', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>© 2025 Азбука нейросетей</span>
-            <button style={{ background: 'none', border: 'none', color: '#e8e4f3', cursor: 'pointer', fontSize: 11, fontFamily: 'Nunito,sans-serif', opacity: 0.4 }} onClick={() => setPage('admin')}>⚙</button>
+            <button style={{ background: 'none', border: '1px solid #c8bfee', borderRadius: 6, color: '#9990b0', cursor: 'pointer', fontSize: 12, padding: '3px 8px', fontFamily: 'Nunito,sans-serif' }} onClick={() => setPage('admin')}>⚙ Управление</button>
           </div>
         </div>
       </footer>
