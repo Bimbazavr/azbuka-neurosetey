@@ -749,7 +749,11 @@ const lStyles = {
 
 // ===== azbuka/pages/Catalog.jsx =====
 // Catalog page — filters + workshop grid
-const WORKSHOPS_DATA = window.AZBUKA.workshopsAll;
+const getWorkshopsData = () => {
+  try { const s = JSON.parse(localStorage.getItem('az_workshops_data')); if (s && s.length) return s; } catch {}
+  return window.AZBUKA.workshopsAll;
+};
+const WORKSHOPS_DATA = getWorkshopsData();
 
 
 const Catalog = ({ setPage, setAuthModal, currentUser }) => {
@@ -757,7 +761,7 @@ const Catalog = ({ setPage, setAuthModal, currentUser }) => {
   const [sort, setSort] = React.useState('date');
   const [savedIds, setSavedIds] = React.useState([]);
 
-  const tags = ['Бизнес', 'Дизайн', 'Контент', 'Технологии', 'Образование'];
+  const tags = ['Дизайн', 'Контент', 'Образование'];
   const levels = ['Начинающий', 'Продвинутый'];
   const formats = ['Онлайн'];
 
@@ -1518,8 +1522,36 @@ const TeacherDashboard = ({ currentUser, setPage }) => {
     setChatMsg('');
   };
 
+  const [workshops, setWorkshops] = React.useState(() => {
+    try { const s = JSON.parse(localStorage.getItem('az_workshops_data')); if (s && s.length) return s; } catch {}
+    return window.AZBUKA.workshopsAll.map(w => ({...w}));
+  });
+  const emptyForm = { emoji: '🎓', title: '', tag: 'Дизайн', level: 'Начинающий', format: 'Онлайн', price: 2000, seats: 10, date: '', teacher: 'Катя', duration: '2–3 ч', desc: '' };
+  const [editForm, setEditForm] = React.useState(null);
+  const [editId, setEditId] = React.useState(null);
+
+  const saveWorkshops = (list) => {
+    setWorkshops(list);
+    localStorage.setItem('az_workshops_data', JSON.stringify(list));
+  };
+
+  const openAdd = () => { setEditForm({...emptyForm}); setEditId(null); setActiveTab('workshops'); };
+  const openEdit = (w) => { setEditForm({...w}); setEditId(w.id); setActiveTab('workshops'); };
+  const deleteWorkshop = (id) => { if (confirm('Удалить воркшоп?')) saveWorkshops(workshops.filter(w => w.id !== id)); };
+  const saveForm = () => {
+    if (!editForm.title.trim()) return alert('Укажите название');
+    if (editId) {
+      saveWorkshops(workshops.map(w => w.id === editId ? {...editForm, id: editId} : w));
+    } else {
+      const newId = Math.max(0, ...workshops.map(w => w.id)) + 1;
+      saveWorkshops([...workshops, {...editForm, id: newId}]);
+    }
+    setEditForm(null); setEditId(null);
+  };
+
   const tabs = [
   { id: 'overview', label: 'Обзор' },
+  { id: 'workshops', label: '📋 Воркшопы' },
   { id: 'students', label: 'Ученики' },
   { id: 'analytics', label: 'Аналитика' },
   { id: 'chat', label: 'Чат с группой' },
@@ -1612,6 +1644,82 @@ const TeacherDashboard = ({ currentUser, setPage }) => {
                 </div>
             )}
             </div>
+          </div>
+        }
+
+        {/* WORKSHOPS MANAGEMENT */}
+        {activeTab === 'workshops' &&
+        <div>
+            {editForm ? (
+              <div style={{...tdStyles.card, maxWidth: 680}}>
+                <div style={{...tdStyles.cardTitle, marginBottom: 20}}>{editId ? 'Редактировать воркшоп' : 'Новый воркшоп'}</div>
+                <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:14}}>
+                  {[
+                    {label:'Эмодзи', key:'emoji', type:'text'},
+                    {label:'Название', key:'title', type:'text'},
+                    {label:'Тема (тег)', key:'tag', type:'select', opts:['Дизайн','Контент','Образование']},
+                    {label:'Уровень', key:'level', type:'select', opts:['Начинающий','Средний','Продвинутый']},
+                    {label:'Формат', key:'format', type:'select', opts:['Онлайн','Офлайн']},
+                    {label:'Цена ₽', key:'price', type:'number'},
+                    {label:'Мест всего', key:'seats', type:'number'},
+                    {label:'Дата и время', key:'date', type:'text'},
+                    {label:'Ведущий', key:'teacher', type:'text'},
+                    {label:'Длительность', key:'duration', type:'text'},
+                  ].map(f =>
+                    <div key={f.key} style={{display:'flex',flexDirection:'column',gap:6}}>
+                      <label style={{fontSize:12,fontWeight:700,color:'#5a5270',textTransform:'uppercase',letterSpacing:'0.04em'}}>{f.label}</label>
+                      {f.type === 'select'
+                        ? <select value={editForm[f.key]} onChange={e => setEditForm(p => ({...p, [f.key]: e.target.value}))}
+                            style={{padding:'9px 12px',borderRadius:10,border:'1.5px solid #ede9ff',fontSize:14,fontFamily:'Nunito,sans-serif',outline:'none',background:'white'}}>
+                            {f.opts.map(o => <option key={o}>{o}</option>)}
+                          </select>
+                        : <input type={f.type} value={editForm[f.key]} onChange={e => setEditForm(p => ({...p, [f.key]: f.type==='number' ? +e.target.value : e.target.value}))}
+                            style={{padding:'9px 12px',borderRadius:10,border:'1.5px solid #ede9ff',fontSize:14,fontFamily:'Nunito,sans-serif',outline:'none'}} />
+                      }
+                    </div>
+                  )}
+                  <div style={{gridColumn:'1/-1',display:'flex',flexDirection:'column',gap:6}}>
+                    <label style={{fontSize:12,fontWeight:700,color:'#5a5270',textTransform:'uppercase',letterSpacing:'0.04em'}}>Описание</label>
+                    <textarea rows={3} value={editForm.desc} onChange={e => setEditForm(p => ({...p, desc: e.target.value}))}
+                      style={{padding:'9px 12px',borderRadius:10,border:'1.5px solid #ede9ff',fontSize:14,fontFamily:'Nunito,sans-serif',outline:'none',resize:'vertical'}} />
+                  </div>
+                </div>
+                <div style={{display:'flex',gap:12,marginTop:20}}>
+                  <button onClick={saveForm} style={{background:'linear-gradient(135deg,#7C6FCD,#9B8FE0)',color:'white',border:'none',borderRadius:12,padding:'10px 28px',fontWeight:800,fontSize:14,cursor:'pointer',fontFamily:'Nunito,sans-serif'}}>
+                    {editId ? '💾 Сохранить' : '+ Добавить'}
+                  </button>
+                  <button onClick={() => {setEditForm(null);setEditId(null);}} style={{background:'#f0eef8',color:'#5a5270',border:'none',borderRadius:12,padding:'10px 20px',fontWeight:700,fontSize:14,cursor:'pointer',fontFamily:'Nunito,sans-serif'}}>Отмена</button>
+                </div>
+              </div>
+            ) : (
+              <div style={tdStyles.card}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+                  <div style={{...tdStyles.cardTitle,margin:0}}>Все воркшопы ({workshops.length})</div>
+                  <button onClick={openAdd} style={{background:'linear-gradient(135deg,#7C6FCD,#9B8FE0)',color:'white',border:'none',borderRadius:12,padding:'10px 22px',fontWeight:800,fontSize:14,cursor:'pointer',fontFamily:'Nunito,sans-serif'}}>+ Новый воркшоп</button>
+                </div>
+                {workshops.length === 0 && <div style={{color:'#9990b0',fontSize:14,textAlign:'center',padding:'40px 0'}}>Воркшопов пока нет. Добавьте первый!</div>}
+                <div style={{display:'flex',flexDirection:'column',gap:12}}>
+                  {workshops.map(w =>
+                    <div key={w.id} style={{display:'flex',alignItems:'center',gap:14,padding:'14px 16px',background:'#faf9ff',borderRadius:14,border:'1.5px solid #ede9ff'}}>
+                      <span style={{fontSize:30}}>{w.emoji}</span>
+                      <div style={{flex:1}}>
+                        <div style={{fontWeight:700,color:'#2D2640',fontSize:15,marginBottom:4}}>{w.title}</div>
+                        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+                          <span style={{fontSize:11,fontWeight:700,color:'#7C6FCD',background:'#ede9ff',padding:'2px 9px',borderRadius:7}}>{w.tag}</span>
+                          <span style={{fontSize:11,fontWeight:700,color:'#F5856A',background:'#fff0eb',padding:'2px 9px',borderRadius:7}}>{w.level}</span>
+                          <span style={{fontSize:12,color:'#9990b0'}}>📅 {w.date || 'Дата не указана'} · {w.price?.toLocaleString()} ₽ · {w.seats} мест · {w.teacher}</span>
+                        </div>
+                        {w.desc && <div style={{fontSize:13,color:'#7B7491',marginTop:4,lineHeight:1.5}}>{w.desc}</div>}
+                      </div>
+                      <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                        <button onClick={() => openEdit(w)} style={{...tdStyles.btnMini,background:'#ede9ff',color:'#7C6FCD'}}>✏️ Ред.</button>
+                        <button onClick={() => deleteWorkshop(w.id)} style={{...tdStyles.btnMini,background:'#fff0eb',color:'#F5856A'}}>🗑 Удал.</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         }
 
