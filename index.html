@@ -1,0 +1,2432 @@
+<!DOCTYPE html><html lang="ru"><head>
+
+
+
+
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Азбука нейросетей — Живые воркшопы по AI</title>
+  <meta name="description" content="Живые воркшопы по нейросетям для тех, кто начинает с нуля. Приходи со своей задачей — уходи с готовым результатом.">
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&amp;family=Geologica:wght@400;500;600;700;800&amp;family=Onest:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="content.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Nunito', sans-serif; background: #faf9ff; color: #2D2640; -webkit-font-smoothing: antialiased; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f0eef8; }
+    ::-webkit-scrollbar-thumb { background: #c8bfee; border-radius: 4px; }
+    input:focus, textarea:focus { border-color: #7C6FCD !important; outline: none; }
+    button:hover { opacity: 0.9; }
+    input[type=range] { cursor: pointer; }
+    .nav-links { display: flex; }
+    .nav-hamburger { display: none !important; }
+    @media (max-width: 768px) {
+      .nav-links { display: none !important; }
+      .nav-hamburger { display: flex !important; }
+    }
+  </style>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-plugins="transform-react-jsx-source" data-filename="inline-0">
+
+
+// ===== azbuka/components/Nav.jsx =====
+// Nav component — top navigation bar
+const Nav = ({ currentPage, setPage, currentUser, setAuthModal, setCurrentUser }) => {
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [dropdownOpen, setDropdownOpen] = React.useState(false);
+
+  const navLinks = [
+  { label: 'Воркшопы', page: 'catalog' },
+  { label: 'Как это работает', page: 'how' },
+  { label: 'О проекте', page: 'about' },
+  { label: 'FAQ', page: 'faq' }];
+
+
+  const handleNav = (page) => {
+    setPage(page);
+    setMobileOpen(false);
+  };
+
+  const logout = () => {
+    setCurrentUser(null);
+    setDropdownOpen(false);
+    setPage('landing');
+  };
+
+  return (
+    <nav style={navStyles.nav}>
+      <div style={navStyles.inner}>
+        {/* Logo */}
+        <div style={navStyles.logo} onClick={() => handleNav('landing')}>
+          <div style={navStyles.logoIcon}>А</div>
+          <div>
+            <div style={navStyles.logoTitle}>Азбука</div>
+            <div style={navStyles.logoSub}>нейросетей</div>
+          </div>
+        </div>
+
+        {/* Desktop links */}
+        <div className="nav-links" style={navStyles.links}>
+          {navLinks.map((l) =>
+          <button key={l.page} style={{
+            ...navStyles.link,
+            color: currentPage === l.page ? '#7C6FCD' : '#5a5270',
+            fontWeight: currentPage === l.page ? 700 : 500
+          }} onClick={() => handleNav(l.page)}>{l.label}</button>
+          )}
+        </div>
+
+        {/* Auth area */}
+        <div style={navStyles.authArea}>
+          {currentUser ?
+          <div style={{ position: 'relative' }}>
+              <button style={navStyles.userBtn} onClick={() => setDropdownOpen(!dropdownOpen)}>
+                <div style={navStyles.avatar}>{currentUser.name[0]}</div>
+                <span style={{ fontSize: 14, color: '#2D2640', fontWeight: 600 }}>{currentUser.name}</span>
+                <span style={{ fontSize: 12, color: '#9990b0' }}>▾</span>
+              </button>
+              {dropdownOpen &&
+            <div style={navStyles.dropdown}>
+                  <button style={navStyles.dropItem} onClick={() => {setPage(currentUser.type === 'teacher' ? 'teacher-dashboard' : 'student-dashboard');setDropdownOpen(false);}}>
+                    Личный кабинет
+                  </button>
+                  <div style={{ height: 1, background: '#f0eef8', margin: '4px 0' }} />
+                  <button style={{ ...navStyles.dropItem, color: '#e07060' }} onClick={logout}>Выйти</button>
+                </div>
+            }
+            </div> :
+
+          <div style={{ display: 'flex', gap: 8 }}>
+              <button style={navStyles.loginBtn} onClick={() => setAuthModal('login')}>Войти</button>
+              <button style={navStyles.signupBtn} onClick={() => setAuthModal('register')}>Записаться</button>
+            </div>
+          }
+          {/* Mobile hamburger */}
+          <button className="nav-hamburger" style={navStyles.hamburger} onClick={() => setMobileOpen(!mobileOpen)}>
+            {mobileOpen ? '✕' : '☰'}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile menu */}
+      {mobileOpen &&
+      <div style={navStyles.mobileMenu}>
+          {navLinks.map((l) =>
+        <button key={l.page} style={navStyles.mobileLink} onClick={() => handleNav(l.page)}>{l.label}</button>
+        )}
+          <div style={{ borderTop: '1px solid #ede9ff', paddingTop: 12, marginTop: 4, display: 'flex', gap: 8 }}>
+            {currentUser ?
+          <button style={navStyles.loginBtn} onClick={logout}>Выйти</button> :
+
+          <>
+                <button style={navStyles.loginBtn} onClick={() => {setAuthModal('login');setMobileOpen(false);}}>Войти</button>
+                <button style={navStyles.signupBtn} onClick={() => {setAuthModal('register');setMobileOpen(false);}}>Записаться</button>
+              </>
+          }
+          </div>
+        </div>
+      }
+    </nav>);
+
+};
+
+const navStyles = {
+  nav: {
+    position: 'sticky', top: 0, zIndex: 100,
+    background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)',
+    borderBottom: '1px solid #ede9ff',
+    boxShadow: '0 2px 16px rgba(124,111,205,0.07)'
+  },
+  inner: {
+    maxWidth: 1200, margin: '0 auto', padding: '0 24px',
+    height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+  },
+  logo: {
+    display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer'
+  },
+  logoIcon: {
+    width: 40, height: 40, borderRadius: 12,
+    background: 'linear-gradient(135deg, #7C6FCD 0%, #9B8FE0 100%)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    color: 'white', fontWeight: 800, fontSize: 20, fontFamily: 'Nunito, sans-serif'
+  },
+  logoTitle: { fontSize: 16, fontWeight: 800, color: '#2D2640', lineHeight: 1.2 },
+  logoSub: { fontSize: 11, color: '#9990b0', fontWeight: 500, lineHeight: 1.2 },
+  links: { display: 'flex', gap: 4 },
+  link: {
+    background: 'none', border: 'none', cursor: 'pointer',
+    padding: '6px 14px', borderRadius: 10, fontSize: 14,
+    transition: 'all 0.15s'
+  },
+  authArea: { display: 'flex', alignItems: 'center', gap: 8 },
+  loginBtn: {
+    background: 'none', border: '1.5px solid #7C6FCD', color: '#7C6FCD',
+    borderRadius: 12, padding: '8px 18px', fontSize: 14, fontWeight: 600,
+    cursor: 'pointer', transition: 'all 0.15s'
+  },
+  signupBtn: {
+    background: 'linear-gradient(135deg, #7C6FCD, #9B8FE0)', border: 'none',
+    color: 'white', borderRadius: 12, padding: '8px 18px', fontSize: 14, fontWeight: 600,
+    cursor: 'pointer', boxShadow: '0 4px 12px rgba(124,111,205,0.35)'
+  },
+  userBtn: {
+    display: 'flex', alignItems: 'center', gap: 8,
+    background: '#f7f5ff', border: '1.5px solid #ede9ff',
+    borderRadius: 12, padding: '6px 14px', cursor: 'pointer'
+  },
+  avatar: {
+    width: 28, height: 28, borderRadius: '50%',
+    background: 'linear-gradient(135deg, #7C6FCD, #F5856A)',
+    color: 'white', fontWeight: 700, fontSize: 13,
+    display: 'flex', alignItems: 'center', justifyContent: 'center'
+  },
+  dropdown: {
+    position: 'absolute', top: '110%', right: 0,
+    background: 'white', borderRadius: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+    border: '1px solid #ede9ff', minWidth: 180, padding: '6px',
+    zIndex: 200
+  },
+  dropItem: {
+    width: '100%', textAlign: 'left', background: 'none', border: 'none',
+    padding: '10px 14px', borderRadius: 10, fontSize: 14, cursor: 'pointer',
+    color: '#2D2640', fontWeight: 500
+  },
+  hamburger: {
+    display: 'none', background: 'none', border: 'none',
+    fontSize: 20, cursor: 'pointer', padding: 4, color: '#2D2640'
+  },
+  mobileMenu: {
+    padding: '12px 24px 16px',
+    display: 'flex', flexDirection: 'column', gap: 4,
+    borderTop: '1px solid #ede9ff',
+    background: 'white'
+  },
+  mobileLink: {
+    background: 'none', border: 'none', textAlign: 'left',
+    padding: '10px 4px', fontSize: 15, color: '#2D2640',
+    fontWeight: 500, cursor: 'pointer'
+  }
+};
+
+
+
+// ===== azbuka/components/Auth.jsx =====
+// Auth modal — login / register
+const Auth = ({ mode, setMode, onClose, onLogin }) => {
+  const [form, setForm] = React.useState({ name: '', email: '', password: '', role: 'student' });
+  const [errors, setErrors] = React.useState({});
+  const [loading, setLoading] = React.useState(false);
+
+  const validate = () => {
+    const e = {};
+    if (mode === 'register' && !form.name.trim()) e.name = 'Введите имя';
+    if (!form.email.includes('@')) e.email = 'Некорректный email';
+    if (form.password.length < 6) e.password = 'Минимум 6 символов';
+    return e;
+  };
+
+  const submit = (e) => {
+    e.preventDefault();
+    const errs = validate();
+    if (Object.keys(errs).length) {setErrors(errs);return;}
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      onLogin({ name: form.name || form.email.split('@')[0], type: form.role, email: form.email });
+      onClose();
+    }, 800);
+  };
+
+  const field = (id, label, type = 'text', placeholder = '') =>
+  <div style={authStyles.field}>
+      <label style={authStyles.label}>{label}</label>
+      <input
+      type={type}
+      placeholder={placeholder}
+      value={form[id]}
+      onChange={(e) => {setForm({ ...form, [id]: e.target.value });setErrors({ ...errors, [id]: '' });}}
+      style={{ ...authStyles.input, ...(errors[id] ? authStyles.inputError : {}) }} />
+    
+      {errors[id] && <div style={authStyles.errorMsg}>{errors[id]}</div>}
+    </div>;
+
+
+  return (
+    <div style={authStyles.overlay} onClick={onClose}>
+      <div style={authStyles.modal} onClick={(e) => e.stopPropagation()}>
+        <button style={authStyles.close} onClick={onClose}>✕</button>
+
+        <div style={authStyles.logoArea}>
+          <div style={authStyles.logoIcon}>А</div>
+          <div style={authStyles.logoText}>Азбука нейросетей</div>
+        </div>
+
+        <div style={authStyles.tabs}>
+          {['login', 'register'].map((m) =>
+          <button key={m} style={{ ...authStyles.tab, ...(mode === m ? authStyles.tabActive : {}) }}
+          onClick={() => {setMode(m);setErrors({});}}>
+              {m === 'login' ? 'Войти' : 'Регистрация'}
+            </button>
+          )}
+        </div>
+
+        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+          {mode === 'register' && field('name', 'Имя', 'text', 'Ваше имя')}
+          {field('email', 'Email', 'email', 'example@mail.ru')}
+          {field('password', 'Пароль', 'password', '••••••••')}
+
+          {mode === 'register' &&
+          <div style={authStyles.field}>
+              <label style={authStyles.label}>Я регистрируюсь как</label>
+              <div style={authStyles.roleRow}>
+                {[['student', '🎓 Ученик'], ['teacher', '🧑‍🏫 Преподаватель']].map(([val, lbl]) =>
+              <button key={val} type="button" style={{
+                ...authStyles.roleBtn,
+                ...(form.role === val ? authStyles.roleBtnActive : {})
+              }} onClick={() => setForm({ ...form, role: val })}>{lbl}</button>
+              )}
+              </div>
+            </div>
+          }
+
+          <button type="submit" style={authStyles.submit} disabled={loading}>
+            {loading ? 'Загрузка...' : mode === 'login' ? 'Войти' : 'Создать аккаунт'}
+          </button>
+        </form>
+
+        {mode === 'login' &&
+        <div style={authStyles.hint}>
+            Нет аккаунта? <button style={authStyles.hintBtn} onClick={() => setMode('register')}>Зарегистрироваться</button>
+          </div>
+        }
+        {mode === 'register' &&
+        <div style={authStyles.hint}>
+            Уже есть аккаунт? <button style={authStyles.hintBtn} onClick={() => setMode('login')}>Войти</button>
+          </div>
+        }
+
+        <div style={authStyles.divider}><span>или</span></div>
+        <button style={authStyles.yandexBtn} onClick={() => {
+          onLogin({ name: mode === 'register' ? form.name || 'Пользователь' : 'Пользователь', type: form.role || 'student', email: 'ya@yandex.ru' });
+          onClose();
+        }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ marginRight: 8 }}>
+            <circle cx="12" cy="12" r="12" fill="#FC3F1D" />
+            <text x="12" y="17" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold" fontFamily="Arial">Я</text>
+          </svg>
+          Войти через Яндекс ID
+        </button>
+      </div>
+    </div>);
+
+};
+
+const authStyles = {
+  overlay: {
+    position: 'fixed', inset: 0, zIndex: 1000,
+    background: 'rgba(30,20,60,0.45)', backdropFilter: 'blur(6px)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16
+  },
+  modal: {
+    background: 'white', borderRadius: 24, padding: '36px 32px',
+    width: '100%', maxWidth: 420, position: 'relative',
+    boxShadow: '0 24px 64px rgba(124,111,205,0.25)'
+  },
+  close: {
+    position: 'absolute', top: 16, right: 16,
+    background: '#f7f5ff', border: 'none', borderRadius: 10,
+    width: 32, height: 32, fontSize: 14, cursor: 'pointer', color: '#7B7491'
+  },
+  logoArea: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 },
+  logoIcon: {
+    width: 36, height: 36, borderRadius: 10,
+    background: 'linear-gradient(135deg, #7C6FCD, #9B8FE0)',
+    color: 'white', fontWeight: 800, fontSize: 18,
+    display: 'flex', alignItems: 'center', justifyContent: 'center'
+  },
+  logoText: { fontSize: 15, fontWeight: 700, color: '#2D2640' },
+  tabs: {
+    display: 'flex', background: '#f7f5ff', borderRadius: 14, padding: 4, marginBottom: 24
+  },
+  tab: {
+    flex: 1, padding: '9px 0', borderRadius: 11, border: 'none',
+    background: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 600, color: '#9990b0',
+    transition: 'all 0.15s'
+  },
+  tabActive: { background: 'white', color: '#7C6FCD', boxShadow: '0 2px 8px rgba(124,111,205,0.15)' },
+  field: { display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 },
+  label: { fontSize: 13, fontWeight: 600, color: '#5a5270' },
+  input: {
+    padding: '11px 14px', borderRadius: 12, border: '1.5px solid #ede9ff',
+    fontSize: 14, color: '#2D2640', outline: 'none', transition: 'border-color 0.15s',
+    fontFamily: 'Nunito, sans-serif'
+  },
+  inputError: { borderColor: '#f5856a' },
+  errorMsg: { fontSize: 12, color: '#f5856a', marginTop: -2 },
+  roleRow: { display: 'flex', gap: 8 },
+  roleBtn: {
+    flex: 1, padding: '10px 8px', borderRadius: 12, border: '1.5px solid #ede9ff',
+    background: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#9990b0',
+    transition: 'all 0.15s'
+  },
+  roleBtnActive: { borderColor: '#7C6FCD', background: '#f0edff', color: '#7C6FCD' },
+  submit: {
+    width: '100%', padding: '13px', borderRadius: 14,
+    background: 'linear-gradient(135deg, #7C6FCD, #9B8FE0)', border: 'none',
+    color: 'white', fontWeight: 700, fontSize: 15, cursor: 'pointer',
+    boxShadow: '0 4px 16px rgba(124,111,205,0.35)', marginTop: 8,
+    fontFamily: 'Nunito, sans-serif'
+  },
+  hint: { textAlign: 'center', fontSize: 13, color: '#9990b0', marginTop: 14 },
+  hintBtn: { background: 'none', border: 'none', color: '#7C6FCD', fontWeight: 700, cursor: 'pointer', fontSize: 13 },
+  divider: {
+    display: 'flex', alignItems: 'center', gap: 10, margin: '16px 0',
+    color: '#c0bad8', fontSize: 12,
+    '::before': { content: '""', flex: 1, height: 1, background: '#ede9ff' }
+  },
+  yandexBtn: {
+    width: '100%', padding: '12px', borderRadius: 14, border: '1.5px solid #ede9ff',
+    background: 'white', cursor: 'pointer', fontSize: 14, fontWeight: 600,
+    color: '#2D2640', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    fontFamily: 'Nunito, sans-serif'
+  }
+};
+
+
+
+// ===== azbuka/pages/Landing.jsx =====
+// Landing page — Hero (3 variants via Tweak), value props, how it works, pricing, team
+const Landing = ({ setPage, setAuthModal, heroVariant }) => {
+  const workshops = window.AZBUKA.workshopsHome;
+
+
+  // ---- HERO VARIANTS ----
+  const HeroV1 = () =>
+  <section style={{ ...lStyles.hero, background: (window.AZBUKA.gradients&&window.AZBUKA.gradients.heroV1)||'linear-gradient(160deg,#f7f5ff 0%,#fff0eb 100%)' }}>
+      <div style={lStyles.heroInner}>
+        <div style={lStyles.heroBadge}>🚀 Живые воркшопы по нейросетям</div>
+        <h1 style={lStyles.heroH1}>С нуля — до результата<br /><span style={{ color: '#7C6FCD' }}>за один воркшоп</span></h1>
+        <p style={lStyles.heroSub}>Приходи со своей задачей — уходи с готовым результатом. Никаких скучных теорийько практика здесь и сейчас.</p>
+        <div style={lStyles.heroBtns}>
+          <button style={lStyles.btnPrimary} onClick={() => setPage('catalog')}>Выбрать воркшоп</button>
+          <button style={lStyles.btnSecondary} onClick={() => setPage('how')}>Как это работает</button>
+        </div>
+        <div style={lStyles.heroStats}>
+          {[['200+', 'участников'], ['95%', 'довольны результатом'], ['0 ₽', 'первое занятие']].map(([n, l]) =>
+        <div key={n} style={lStyles.heroStat}><span style={lStyles.heroStatNum}>{n}</span><span style={lStyles.heroStatLabel}>{l}</span></div>
+        )}
+        </div>
+      </div>
+      <div style={lStyles.heroVisual}>
+        <div style={lStyles.heroCard}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>💩</div>
+          <div style={{ fontWeight: 700, fontSize: 18, color: '#2D2640', marginBottom: 6 }}>ChatGPT для бизнеса</div>
+          <div style={{ fontSize: 13, color: '#9990b0', marginBottom: 16 }}>Воркшоп · 26 апреля · 19:00</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontWeight: 800, fontSize: 22, color: '#7C6FCD' }}>2 500 ₽</div>
+            <button style={lStyles.btnSmall} onClick={() => setAuthModal('register')}>Записаться</button>
+          </div>
+          <div style={{ marginTop: 12, fontSize: 12, color: '#F5856A', fontWeight: 600 }}>🔥 Осталось 3 места</div>
+        </div>
+      </div>
+    </section>;
+
+
+  const HeroV2 = () =>
+  <section style={{ ...lStyles.hero, background: '#2D2640', minHeight: 560 }}>
+      <div style={{ ...lStyles.heroInner }}>
+        <div style={{ ...lStyles.heroBadge, background: 'rgba(124,111,205,0.25)', color: '#c8bfff' }}>✨ Живые воркшопы</div>
+        <h1 style={{ ...lStyles.heroH1, color: 'white' }}>Нейросети — это<br /><span style={{ color: '#c8bfff' }}>не страшно</span></h1>
+        <p style={{ ...lStyles.heroSub, color: 'rgba(255,255,255,0.7)' }}>«Азбука нейросетей» — для тех, кто начинает с нуля. Здесь не страшно задавать вопросы и пробовать.</p>
+        <div style={lStyles.heroBtns}>
+          <button style={lStyles.btnPrimary} onClick={() => setPage('catalog')}>Смотреть воркшопы</button>
+          <button style={{ ...lStyles.btnSecondary, borderColor: 'rgba(255,255,255,0.2)', color: 'white' }} onClick={() => setAuthModal('register')}>Бесплатный урок</button>
+        </div>
+        <div style={lStyles.heroStats}>
+          {[['200+', 'участников'], ['95%', 'довольны'], ['8–15', 'человек в группе']].map(([n, l]) =>
+        <div key={n} style={lStyles.heroStat}>
+              <span style={{ ...lStyles.heroStatNum, color: '#c8bfff' }}>{n}</span>
+              <span style={{ ...lStyles.heroStatLabel, color: 'rgba(255,255,255,0.5)' }}>{l}</span>
+            </div>
+        )}
+        </div>
+      </div>
+      <div style={lStyles.heroVisual}>
+        <div style={{ ...lStyles.heroCard, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>💩</div>
+          <div style={{ fontWeight: 700, fontSize: 18, color: 'white', marginBottom: 6 }}>ChatGPT для бизнеса</div>
+          <div style={{ fontSize: 13, color: 'rgba(200,191,255,0.7)', marginBottom: 16 }}>Воркшоп · 26 апреля · 19:00</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontWeight: 800, fontSize: 22, color: '#c8bfff' }}>2 500 ₽</div>
+            <button style={lStyles.btnSmall} onClick={() => setAuthModal('register')}>Записаться</button>
+          </div>
+          <div style={{ marginTop: 12, fontSize: 12, color: '#F5856A', fontWeight: 600 }}>🔥 Осталось 3 места</div>
+        </div>
+      </div>
+    </section>;
+
+
+  const HeroV3 = () =>
+  <section style={{ ...lStyles.hero, background: (window.AZBUKA.gradients&&window.AZBUKA.gradients.heroV3)||'linear-gradient(160deg,#fff8f5 0%,#f5f0ff 100%)', flexDirection: 'column', textAlign: 'center', padding: '80px 24px 60px' }}>
+      <div style={{ maxWidth: 680, margin: '0 auto' }}>
+        <div style={{ ...lStyles.heroBadge, margin: '0 auto 24px' }}>🎓 Для тех, кто начинает с нуля</div>
+        <h1 style={{ ...lStyles.heroH1, fontSize: 'clamp(36px,5vw,64px)', lineHeight: 1.15 }}>
+          Ваша <span style={{ color: '#7C6FCD' }}>Азбука</span><br />нейросетей
+        </h1>
+        <p style={{ ...lStyles.heroSub, maxWidth: 520, margin: '0 auto 32px' }}>Живые воркшопы, где каждый работает над своей задачей и уходит с готовым результатом. Катя и Таня помогут разобраться.</p>
+        <div style={{ ...lStyles.heroBtns, justifyContent: 'center' }}>
+          <button style={{ ...lStyles.btnPrimary, padding: '14px 36px', fontSize: 16 }} onClick={() => setPage('catalog')}>Выбрать воркшоп →</button>
+        </div>
+        <div style={{ ...lStyles.heroStats, justifyContent: 'center', marginTop: 40 }}>
+          {[['200+', 'участников'], ['95%', 'рекомендуют'], ['Яндекс 360', 'инфраструктура']].map(([n, l]) =>
+        <div key={n} style={lStyles.heroStat}><span style={lStyles.heroStatNum}>{n}</span><span style={lStyles.heroStatLabel}>{l}</span></div>
+        )}
+        </div>
+      </div>
+    </section>;
+
+
+  const heroes = [HeroV1, HeroV2, HeroV3];
+  const HeroComponent = heroes[(heroVariant || 1) - 1];
+
+  return (
+    <div>
+      <HeroComponent />
+
+      {/* Free intro block */}
+      <section style={lStyles.section}>
+        <div style={lStyles.container}>
+          <div style={lStyles.freeBlock}>
+            <div style={{ fontSize: 40 }}>🎁</div>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 18, color: '#2D2640', marginBottom: 4 }}>Начни бесплатно</div>
+              <div style={{ fontSize: 14, color: '#7B7491' }}>Посмотри вводное видео (30 мин): что такое нейросети и чем ChatGPT отличается от Алисы</div>
+            </div>
+            <button style={{ ...lStyles.btnPrimary, whiteSpace: 'nowrap' }} onClick={() => setAuthModal('register')}>Смотреть бесплатно</button>
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section style={{ ...lStyles.section, background: '#faf9ff' }} id="how">
+        <div style={lStyles.container}>
+          <div style={lStyles.sectionHeader}>
+            <h2 style={lStyles.h2}>Как проходит воркшоп</h2>
+            <p style={lStyles.sectionSub}>Четыре шага от регистрации до результата</p>
+          </div>
+          <div style={lStyles.stepsGrid}>
+            {[
+            { n: 1, icon: '📋', title: 'Заполни анкету', desc: 'Расскажи свою задачу — мы адаптируем программу под участников' },
+            { n: 2, icon: '💳', title: 'Оплати участие', desc: 'Через ЮKassa — карта, СБП или ЮMoney. Безопасно и быстро' },
+            { n: 3, icon: '💻', title: 'Живой воркшоп', desc: '2–3 часа в Яндекс.Телемост. Работаешь над своей задачей прямо на эфире' },
+            { n: 4, icon: '📚', title: 'Неделя практики', desc: 'Запись и материалы — в личном кабинете. Задашь вопросы на второй сессии' }].
+            map((s) =>
+            <div key={s.n} style={lStyles.stepCard}>
+                <div style={lStyles.stepNum}>{s.n}</div>
+                <div style={{ fontSize: 36, marginBottom: 12 }}>{s.icon}</div>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: '#2D2640', marginBottom: 6 }}>{s.title}</h3>
+                <p style={{ fontSize: 14, color: '#7B7491', lineHeight: 1.6 }}>{s.desc}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Upcoming workshops */}
+      <section style={lStyles.section}>
+        <div style={lStyles.container}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32, flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <h2 style={lStyles.h2}>Ближайшие воркшопы</h2>
+              <p style={lStyles.sectionSub}>Живые группы — 8–15 человек</p>
+            </div>
+            <button style={lStyles.btnSecondary} onClick={() => setPage('catalog')}>Все воркшопы →</button>
+          </div>
+          <div style={lStyles.cardsGrid}>
+            {workshops.map((w) =>
+            <div key={w.id} style={lStyles.wCard} onClick={() => setPage('workshop-' + w.id)}>
+                <div style={lStyles.wCardTop}>
+                  <div style={{ fontSize: 40 }}>{w.emoji}</div>
+                  <span style={lStyles.tag}>{w.tag}</span>
+                </div>
+                <h3 style={lStyles.wCardTitle}>{w.title}</h3>
+                <div style={lStyles.wCardMeta}>
+                  <span>📅 {w.date}</span>
+                  <span style={{ color: w.seats <= 3 ? '#F5856A' : '#9990b0' }}>
+                    {w.seats <= 3 ? `🔥 Осталось ${w.seats}` : `👥 ${w.seats} мест`}
+                  </span>
+                </div>
+                <div style={lStyles.wCardFooter}>
+                  <span style={lStyles.price}>{w.price.toLocaleString()} ₽</span>
+                  <button style={lStyles.btnSmall} onClick={(e) => {e.stopPropagation();setAuthModal('register');}}>Записаться</button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section style={{ ...lStyles.section, background: '#faf9ff' }}>
+        <div style={lStyles.container}>
+          <div style={lStyles.sectionHeader}>
+            <h2 style={lStyles.h2}>Форматы участия</h2>
+            <p style={lStyles.sectionSub}>Выберите подходящий</p>
+          </div>
+          <div style={lStyles.pricingGrid}>
+            {window.AZBUKA.pricing.map((p) =>
+            <div key={p.name} style={{ ...lStyles.priceCard, ...(p.popular ? lStyles.priceCardPopular : {}) }}>
+                {p.popular && <div style={lStyles.popularBadge}>⭐ Популярно</div>}
+                <h3 style={{ fontSize: 18, fontWeight: 700, color: '#2D2640', marginBottom: 8 }}>{p.name}</h3>
+                <div style={{ marginBottom: 20 }}>
+                  <span style={{ fontSize: 28, fontWeight: 800, color: p.accent }}>{p.price} ₽</span>
+                  <span style={{ fontSize: 13, color: '#9990b0' }}> {p.period}</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
+                  {p.features.map((f) =>
+                <div key={f} style={{ display: 'flex', gap: 8, fontSize: 14, color: '#5a5270' }}>
+                      <span style={{ color: p.accent }}>✓</span>{f}
+                    </div>
+                )}
+                </div>
+                <button style={{
+                width: '100%', padding: '12px', borderRadius: 14, border: 'none',
+                background: p.popular ? 'linear-gradient(135deg,#7C6FCD,#9B8FE0)' : p.accent === '#F5856A' ? '#fff0eb' : '#f0edff',
+                color: p.popular ? 'white' : p.accent,
+                fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: 'Nunito,sans-serif',
+                boxShadow: p.popular ? '0 4px 16px rgba(124,111,205,0.35)' : 'none'
+              }} onClick={() => setAuthModal('register')}>{p.btn}</button>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Team */}
+      <section style={lStyles.section}>
+        <div style={lStyles.container}>
+          <div style={lStyles.sectionHeader}>
+            <h2 style={lStyles.h2}>Команда</h2>
+            <p style={lStyles.sectionSub}>Два эксперта и технический директор</p>
+          </div>
+          <div style={lStyles.teamGrid}>
+            {window.AZBUKA.team.map((t) =>
+            <div key={t.name} style={lStyles.teamCard}>
+                {t.photo
+                  ? <img src={t.photo} style={{...lStyles.teamAvatar, objectFit:'cover', fontSize:0}} alt={t.name} />
+                  : <div style={lStyles.teamAvatar}>{t.emoji}</div>
+                }
+                <h3 style={{ fontSize: 18, fontWeight: 700, color: '#2D2640', marginBottom: 4 }}>{t.name}</h3>
+                <div style={{ fontSize: 12, color: '#7C6FCD', fontWeight: 600, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.role}</div>
+                <p style={{ fontSize: 14, color: '#7B7491', lineHeight: 1.6 }}>{t.desc}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section style={{ ...lStyles.section, background: (window.AZBUKA.gradients&&window.AZBUKA.gradients.cta)||'linear-gradient(135deg,#7C6FCD 0%,#9B8FE0 100%)' }}>
+        <div style={{ ...lStyles.container, textAlign: 'center' }}>
+          <h2 style={{ fontSize: 'clamp(24px,4vw,40px)', fontWeight: 800, color: 'white', marginBottom: 12 }}>Готов попробовать?</h2>
+          <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.8)', marginBottom: 32 }}>Начни с бесплатного вводного урока — без обязательств</p>
+          <button style={{ ...lStyles.btnPrimary, background: 'white', color: '#7C6FCD', fontSize: 16, padding: '14px 40px' }} onClick={() => setAuthModal('register')}>
+            Начать бесплатно
+          </button>
+        </div>
+      </section>
+    </div>);
+
+};
+
+const lStyles = {
+  hero: {
+    display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 40,
+    padding: '72px 24px 64px', maxWidth: 1200, margin: '0 auto',
+    minHeight: 520
+  },
+  heroInner: { flex: '1 1 400px', maxWidth: 580 },
+  heroBadge: {
+    display: 'inline-block', padding: '6px 16px', borderRadius: 20,
+    background: '#ede9ff', color: '#7C6FCD', fontSize: 13, fontWeight: 600, marginBottom: 20
+  },
+  heroH1: {
+    fontSize: 'clamp(32px,4.5vw,56px)', fontWeight: 800, color: '#2D2640',
+    lineHeight: 1.15, margin: '0 0 16px'
+  },
+  heroSub: { fontSize: 16, color: '#7B7491', lineHeight: 1.7, marginBottom: 32, maxWidth: 480 },
+  heroBtns: { display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 40 },
+  heroStats: { display: 'flex', gap: 32, flexWrap: 'wrap' },
+  heroStat: { display: 'flex', flexDirection: 'column', gap: 2 },
+  heroStatNum: { fontSize: 22, fontWeight: 800, color: '#2D2640' },
+  heroStatLabel: { fontSize: 12, color: '#9990b0', fontWeight: 500 },
+  heroVisual: { flex: '1 1 280px', display: 'flex', justifyContent: 'center' },
+  heroCard: {
+    background: 'white', borderRadius: 24, padding: 28, width: '100%', maxWidth: 300,
+    boxShadow: '0 16px 48px rgba(124,111,205,0.15)'
+  },
+  section: { padding: '64px 24px' },
+  container: { maxWidth: 1200, margin: '0 auto' },
+  sectionHeader: { textAlign: 'center', marginBottom: 48 },
+  h2: { fontSize: 'clamp(24px,3vw,36px)', fontWeight: 800, color: '#2D2640', margin: '0 0 8px' },
+  sectionSub: { fontSize: 15, color: '#9990b0', margin: 0 },
+  stepsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 20 },
+  stepCard: {
+    background: 'white', borderRadius: 20, padding: '28px 24px',
+    boxShadow: '0 4px 20px rgba(124,111,205,0.08)', position: 'relative'
+  },
+  stepNum: {
+    position: 'absolute', top: 20, right: 20, width: 28, height: 28, borderRadius: '50%',
+    background: '#ede9ff', color: '#7C6FCD', fontSize: 13, fontWeight: 800,
+    display: 'flex', alignItems: 'center', justifyContent: 'center'
+  },
+  cardsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 20 },
+  wCard: {
+    background: 'white', borderRadius: 20, padding: 24, cursor: 'pointer',
+    boxShadow: '0 4px 20px rgba(124,111,205,0.08)',
+    transition: 'transform 0.15s, box-shadow 0.15s',
+    border: '1.5px solid transparent'
+  },
+  wCardTop: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 },
+  wCardTitle: { fontSize: 17, fontWeight: 700, color: '#2D2640', marginBottom: 10, lineHeight: 1.35 },
+  wCardMeta: { display: 'flex', gap: 12, fontSize: 13, color: '#9990b0', marginBottom: 16, flexWrap: 'wrap' },
+  wCardFooter: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  tag: { fontSize: 11, fontWeight: 700, color: '#7C6FCD', background: '#ede9ff', padding: '3px 10px', borderRadius: 8 },
+  price: { fontSize: 20, fontWeight: 800, color: '#7C6FCD' },
+  pricingGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 20, maxWidth: 900, margin: '0 auto' },
+  priceCard: {
+    background: 'white', borderRadius: 24, padding: '32px 28px', position: 'relative',
+    boxShadow: '0 4px 20px rgba(124,111,205,0.08)', border: '1.5px solid #ede9ff'
+  },
+  priceCardPopular: { border: '2px solid #7C6FCD', boxShadow: '0 8px 32px rgba(124,111,205,0.2)' },
+  popularBadge: {
+    position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)',
+    background: 'linear-gradient(135deg,#7C6FCD,#9B8FE0)', color: 'white',
+    padding: '4px 16px', borderRadius: 12, fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap'
+  },
+  teamGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(250px,1fr))', gap: 20 },
+  teamCard: {
+    background: 'white', borderRadius: 20, padding: '32px 24px', textAlign: 'center',
+    boxShadow: '0 4px 20px rgba(124,111,205,0.08)'
+  },
+  teamAvatar: {
+    fontSize: 52, marginBottom: 16, width: 80, height: 80,
+    background: 'linear-gradient(135deg,#f0edff,#fff0eb)', borderRadius: '50%',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px'
+  },
+  freeBlock: {
+    background: 'linear-gradient(135deg,#7C6FCD,#9B8FE0)',
+    borderRadius: 20, padding: '28px 32px', display: 'flex',
+    alignItems: 'center', gap: 20, flexWrap: 'wrap', color: 'white'
+  },
+  btnPrimary: {
+    background: 'linear-gradient(135deg,#7C6FCD,#9B8FE0)', border: 'none',
+    color: 'white', borderRadius: 14, padding: '12px 28px', fontSize: 15, fontWeight: 700,
+    cursor: 'pointer', boxShadow: '0 4px 16px rgba(124,111,205,0.35)',
+    fontFamily: 'Nunito,sans-serif'
+  },
+  btnSecondary: {
+    background: 'none', border: '1.5px solid #7C6FCD', color: '#7C6FCD',
+    borderRadius: 14, padding: '12px 24px', fontSize: 15, fontWeight: 700,
+    cursor: 'pointer', fontFamily: 'Nunito,sans-serif'
+  },
+  btnSmall: {
+    background: 'linear-gradient(135deg,#7C6FCD,#9B8FE0)', border: 'none',
+    color: 'white', borderRadius: 10, padding: '8px 18px', fontSize: 13, fontWeight: 700,
+    cursor: 'pointer', fontFamily: 'Nunito,sans-serif'
+  }
+};
+
+
+
+// ===== azbuka/pages/Catalog.jsx =====
+// Catalog page — filters + workshop grid
+const WORKSHOPS_DATA = window.AZBUKA.workshopsAll;
+
+
+const Catalog = ({ setPage, setAuthModal, currentUser }) => {
+  const [filters, setFilters] = React.useState({ tag: '', level: '', format: '', maxPrice: 5000, search: '' });
+  const [sort, setSort] = React.useState('date');
+  const [savedIds, setSavedIds] = React.useState([]);
+
+  const tags = ['Бизнес', 'Дизайн', 'Контент', 'Технологии', 'Образование'];
+  const levels = ['Начинающий', 'Продвинутый'];
+  const formats = ['Онлайн'];
+
+  const filtered = WORKSHOPS_DATA.
+  filter((w) => (!filters.tag || w.tag === filters.tag) && (
+  !filters.level || w.level === filters.level) && (
+  !filters.format || w.format === filters.format) &&
+  w.price <= filters.maxPrice && (
+  !filters.search || w.title.toLowerCase().includes(filters.search.toLowerCase()))
+  ).
+  sort((a, b) => sort === 'price' ? a.price - b.price : sort === 'seats' ? a.seats - b.seats : 0);
+
+  const toggleSave = (id, e) => {
+    e.stopPropagation();
+    setSavedIds((s) => s.includes(id) ? s.filter((x) => x !== id) : [...s, id]);
+  };
+
+  const filterChip = (key, val, label) =>
+  <button key={val} style={{
+    ...catStyles.chip,
+    ...(filters[key] === val ? catStyles.chipActive : {})
+  }} onClick={() => setFilters((f) => ({ ...f, [key]: f[key] === val ? '' : val }))}>
+      {label}
+    </button>;
+
+
+  return (
+    <div style={catStyles.page}>
+      <div style={catStyles.header}>
+        <div style={catStyles.headerInner}>
+          <h1 style={catStyles.h1}>Воркшопы</h1>
+          <p style={catStyles.sub}>Живые занятия с практическим результатом</p>
+        </div>
+      </div>
+
+      <div style={catStyles.body}>
+        {/* Sidebar filters */}
+        <aside style={catStyles.sidebar}>
+          <div style={catStyles.filterBlock}>
+            <div style={catStyles.filterTitle}>Поиск</div>
+            <input
+              placeholder="Название воркшопа..."
+              value={filters.search}
+              onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
+              style={catStyles.searchInput} />
+            
+          </div>
+          <div style={catStyles.filterBlock}>
+            <div style={catStyles.filterTitle}>Тема</div>
+            <div style={catStyles.chipsRow}>
+              {tags.map((t) => filterChip('tag', t, t))}
+            </div>
+          </div>
+          <div style={catStyles.filterBlock}>
+            <div style={catStyles.filterTitle}>Уровень</div>
+            <div style={catStyles.chipsRow}>
+              {levels.map((l) => filterChip('level', l, l))}
+            </div>
+          </div>
+          <div style={catStyles.filterBlock}>
+            <div style={catStyles.filterTitle}>Стоимость до: <strong style={{ color: '#7C6FCD' }}>{filters.maxPrice.toLocaleString()} ₽</strong></div>
+            <input type="range" min={1000} max={10000} step={500}
+            value={filters.maxPrice}
+            onChange={(e) => setFilters((f) => ({ ...f, maxPrice: +e.target.value }))}
+            style={{ width: '100%', accentColor: '#7C6FCD' }} />
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#c0bad8' }}>
+              <span>1 000 ₽</span><span>10 000 ₽</span>
+            </div>
+          </div>
+          {(filters.tag || filters.level || filters.maxPrice < 5000 || filters.search) &&
+          <button style={catStyles.clearBtn} onClick={() => setFilters({ tag: '', level: '', format: '', maxPrice: 5000, search: '' })}>
+              Сбросить фильтры ✕
+            </button>
+          }
+        </aside>
+
+        {/* Main grid */}
+        <main style={catStyles.main}>
+          <div style={catStyles.sortRow}>
+            <span style={{ fontSize: 14, color: '#9990b0' }}>Найдено: <strong style={{ color: '#2D2640' }}>{filtered.length}</strong></span>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {[['date', 'По дате'], ['price', 'По цене'], ['seats', 'По местам']].map(([v, l]) =>
+              <button key={v} style={{ ...catStyles.sortBtn, ...(sort === v ? catStyles.sortBtnActive : {}) }}
+              onClick={() => setSort(v)}>{l}</button>
+              )}
+            </div>
+          </div>
+
+          {filtered.length === 0 ?
+          <div style={catStyles.empty}>
+              <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
+              <div style={{ fontWeight: 700, color: '#2D2640', marginBottom: 8 }}>Ничего не найдено</div>
+              <div style={{ color: '#9990b0', fontSize: 14 }}>Попробуй изменить фильтры</div>
+            </div> :
+
+          <div style={catStyles.grid}>
+              {filtered.map((w) =>
+            <div key={w.id} style={catStyles.card} onClick={() => setPage('workshop-' + w.id)}>
+                  <div style={catStyles.cardTop}>
+                    <span style={{ fontSize: 40 }}>{w.emoji}</span>
+                    <button style={{ ...catStyles.saveBtn, color: savedIds.includes(w.id) ? '#F5856A' : '#c0bad8' }}
+                onClick={(e) => toggleSave(w.id, e)}>
+                      {savedIds.includes(w.id) ? '♥' : '♡'}
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+                    <span style={catStyles.tag}>{w.tag}</span>
+                    <span style={{ ...catStyles.tag, background: '#fff0eb', color: '#F5856A' }}>{w.level}</span>
+                  </div>
+                  <h3 style={catStyles.cardTitle}>{w.title}</h3>
+                  <p style={catStyles.cardDesc}>{w.desc}</p>
+                  <div style={catStyles.cardMeta}>
+                    <span>📅 {w.date}</span>
+                    <span>⏱ {w.duration}</span>
+                    <span>👩‍🏫 {w.teacher}</span>
+                  </div>
+                  <div style={catStyles.cardFooter}>
+                    <div>
+                      <div style={catStyles.price}>{w.price.toLocaleString()} ₽</div>
+                      <div style={{ fontSize: 12, color: w.seats <= 3 ? '#F5856A' : '#9990b0', fontWeight: 600 }}>
+                        {w.seats <= 3 ? `🔥 ${w.seats} места` : `👥 ${w.seats} мест`}
+                      </div>
+                    </div>
+                    <button style={catStyles.enroll} onClick={(e) => {e.stopPropagation();setAuthModal('register');}}>
+                      Записаться
+                    </button>
+                  </div>
+                </div>
+            )}
+            </div>
+          }
+        </main>
+      </div>
+    </div>);
+
+};
+
+const catStyles = {
+  page: { background: '#faf9ff', minHeight: '100vh' },
+  header: { background: 'linear-gradient(135deg,#f7f5ff,#fff0eb)', padding: '48px 24px 32px' },
+  headerInner: { maxWidth: 1200, margin: '0 auto' },
+  h1: { fontSize: 'clamp(28px,4vw,44px)', fontWeight: 800, color: '#2D2640', margin: '0 0 8px' },
+  sub: { fontSize: 16, color: '#9990b0', margin: 0 },
+  body: { maxWidth: 1200, margin: '0 auto', padding: '32px 24px', display: 'flex', gap: 28, alignItems: 'flex-start' },
+  sidebar: {
+    width: 240, flexShrink: 0, background: 'white', borderRadius: 20, padding: 24,
+    boxShadow: '0 4px 20px rgba(124,111,205,0.08)', position: 'sticky', top: 80
+  },
+  filterBlock: { marginBottom: 20 },
+  filterTitle: { fontSize: 13, fontWeight: 700, color: '#5a5270', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.05em' },
+  searchInput: {
+    width: '100%', padding: '9px 12px', borderRadius: 12, border: '1.5px solid #ede9ff',
+    fontSize: 13, color: '#2D2640', outline: 'none', boxSizing: 'border-box', fontFamily: 'Nunito,sans-serif'
+  },
+  chipsRow: { display: 'flex', flexWrap: 'wrap', gap: 6 },
+  chip: {
+    padding: '5px 12px', borderRadius: 10, border: '1.5px solid #ede9ff',
+    background: 'none', fontSize: 12, fontWeight: 600, color: '#9990b0', cursor: 'pointer', transition: 'all 0.15s'
+  },
+  chipActive: { borderColor: '#7C6FCD', background: '#f0edff', color: '#7C6FCD' },
+  clearBtn: {
+    width: '100%', padding: '8px', borderRadius: 12, border: '1.5px dashed #f5856a',
+    background: 'none', color: '#F5856A', fontSize: 12, fontWeight: 600, cursor: 'pointer'
+  },
+  main: { flex: 1, minWidth: 0 },
+  sortRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 10 },
+  sortBtn: {
+    padding: '5px 14px', borderRadius: 10, border: '1.5px solid #ede9ff',
+    background: 'none', fontSize: 12, fontWeight: 600, color: '#9990b0', cursor: 'pointer'
+  },
+  sortBtnActive: { borderColor: '#7C6FCD', background: '#f0edff', color: '#7C6FCD' },
+  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: 18 },
+  card: {
+    background: 'white', borderRadius: 20, padding: 24, cursor: 'pointer',
+    boxShadow: '0 4px 20px rgba(124,111,205,0.07)', border: '1.5px solid transparent',
+    transition: 'transform 0.15s, box-shadow 0.15s'
+  },
+  cardTop: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 },
+  saveBtn: { background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', padding: 0 },
+  tag: { fontSize: 11, fontWeight: 700, color: '#7C6FCD', background: '#ede9ff', padding: '3px 10px', borderRadius: 8 },
+  cardTitle: { fontSize: 16, fontWeight: 700, color: '#2D2640', margin: '0 0 8px', lineHeight: 1.35 },
+  cardDesc: { fontSize: 13, color: '#9990b0', lineHeight: 1.6, margin: '0 0 12px' },
+  cardMeta: { display: 'flex', gap: 10, fontSize: 12, color: '#9990b0', flexWrap: 'wrap', marginBottom: 14 },
+  cardFooter: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', paddingTop: 14, borderTop: '1px solid #f0eef8' },
+  price: { fontSize: 20, fontWeight: 800, color: '#7C6FCD', marginBottom: 2 },
+  enroll: {
+    background: 'linear-gradient(135deg,#7C6FCD,#9B8FE0)', border: 'none',
+    color: 'white', borderRadius: 12, padding: '9px 20px', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Nunito,sans-serif'
+  },
+  empty: { textAlign: 'center', padding: '80px 20px', background: 'white', borderRadius: 20 }
+};
+
+
+
+// ===== azbuka/pages/Workshop.jsx =====
+// Workshop detail page
+const WorkshopDetail = ({ workshopId, setPage, setAuthModal, currentUser, setPaymentWorkshop }) => {
+  const w = WORKSHOPS_DATA.find((x) => x.id === workshopId) || WORKSHOPS_DATA[0];
+  const [activeTab, setActiveTab] = React.useState('program');
+  const [reviewText, setReviewText] = React.useState('');
+
+  const program = [
+  { time: '19:00–19:15', title: 'Знакомство и анкета задач', desc: 'Каждый участник озвучивает свою задачу' },
+  { time: '19:15–20:30', title: 'Практика — основная часть', desc: 'Работаем с реальными задачами участников в прямом эфире' },
+  { time: '20:30–20:45', title: 'Перерыв', desc: '' },
+  { time: '20:45–21:30', title: 'Разбор и вопросы', desc: 'Дополнительные кейсы, вопросы-ответы' },
+  { time: '21:30–22:00', title: 'Итоги и материалы', desc: 'Шаблоны промтов и доступ к записи на 30 дней' }];
+
+
+  const reviews = [
+  { name: 'Алексей М.', stars: 5, text: 'Пришёл с задачей написать КП — ушёл с готовым шаблоном и пониманием, как его адаптировать. Очень практично!' },
+  { name: 'Марина К.', stars: 5, text: 'Катя объясняет простым языком, без лишней теории. За 3 часа освоила то, на что тратила дни.' },
+  { name: 'Дмитрий С.', stars: 4, text: 'Хороший формат. Группа небольшая — можно задать любой вопрос. Рекомендую новичкам.' }];
+
+
+  const tabs = [
+  { id: 'program', label: 'Программа' },
+  { id: 'teacher', label: 'Преподаватель' },
+  { id: 'reviews', label: `Отзывы (${reviews.length})` },
+  { id: 'faq', label: 'Вопросы' }];
+
+
+  return (
+    <div style={wdStyles.page}>
+      <div style={wdStyles.breadcrumb}>
+        <button style={wdStyles.back} onClick={() => setPage('catalog')}>← Все воркшопы</button>
+        <span style={{ color: '#c0bad8', fontSize: 13 }}> / </span>
+        <span style={{ fontSize: 13, color: '#9990b0' }}>{w.title}</span>
+      </div>
+
+      <div style={wdStyles.container}>
+        {/* Left: main content */}
+        <div style={wdStyles.main}>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+            <span style={wdStyles.tag}>{w.tag}</span>
+            <span style={{ ...wdStyles.tag, background: '#fff0eb', color: '#F5856A' }}>{w.level}</span>
+            <span style={{ ...wdStyles.tag, background: '#e8f8f2', color: '#4CAF8A' }}>{w.format}</span>
+          </div>
+
+          <h1 style={wdStyles.h1}>{w.emoji} {w.title}</h1>
+          <p style={wdStyles.desc}>{w.desc}</p>
+
+          <div style={wdStyles.metaRow}>
+            {[['📅', w.date], ['⏱', w.duration], ['👩‍🏫', w.teacher], ['👥', `${w.seats} мест`], ['💻', 'Яндекс.Телемост']].map(([icon, val]) =>
+            <div key={val} style={wdStyles.metaItem}><span>{icon}</span><span>{val}</span></div>
+            )}
+          </div>
+
+          {/* Tabs */}
+          <div style={wdStyles.tabs}>
+            {tabs.map((t) =>
+            <button key={t.id} style={{ ...wdStyles.tab, ...(activeTab === t.id ? wdStyles.tabActive : {}) }}
+            onClick={() => setActiveTab(t.id)}>{t.label}</button>
+            )}
+          </div>
+
+          {activeTab === 'program' &&
+          <div style={wdStyles.tabContent}>
+              <div style={wdStyles.programList}>
+                {program.map((p, i) =>
+              <div key={i} style={wdStyles.programItem}>
+                    <div style={wdStyles.programTime}>{p.time}</div>
+                    <div style={wdStyles.programDot} />
+                    <div style={wdStyles.programBody}>
+                      <div style={{ fontWeight: 700, color: '#2D2640', marginBottom: 4 }}>{p.title}</div>
+                      {p.desc && <div style={{ fontSize: 13, color: '#9990b0' }}>{p.desc}</div>}
+                    </div>
+                  </div>
+              )}
+              </div>
+              <div style={wdStyles.includes}>
+                <div style={{ fontWeight: 700, color: '#2D2640', marginBottom: 16 }}>Что входит</div>
+                <div style={wdStyles.includesGrid}>
+                  {['🎥 Запись эфира на 30 дней', '📋 Шаблоны промтов', '💬 Чат с преподавателем', '📌 Доступ к базе знаний на 7 дней'].map((f) =>
+                <div key={f} style={wdStyles.includeItem}>{f}</div>
+                )}
+                </div>
+              </div>
+            </div>
+          }
+
+          {activeTab === 'teacher' &&
+          <div style={wdStyles.tabContent}>
+              <div style={wdStyles.teacherCard}>
+                <div style={wdStyles.teacherAvatar}>{w.teacher === 'Катя' ? '👩‍💻' : w.teacher === 'Таня' ? '👩‍🎨' : '👨‍💼'}</div>
+                <div>
+                  <h3 style={{ fontSize: 20, fontWeight: 800, color: '#2D2640', marginBottom: 4 }}>{w.teacher}</h3>
+                  <div style={{ fontSize: 13, color: '#7C6FCD', fontWeight: 600, marginBottom: 12 }}>Эксперт-ведущий · Азбука нейросетей</div>
+                  <p style={{ fontSize: 14, color: '#7B7491', lineHeight: 1.7 }}>
+                    {w.teacher === 'Катя' ?
+                  'Работает с нейросетями в дизайне, контенте и консультациях. Специализируется на практическом применении ChatGPT и инструментов для создания контента.' :
+                  w.teacher === 'Таня' ?
+                  'Эксперт по AI-инструментам для дизайнеров и контент-мейкеров. Создаёт базу знаний и шаблоны промтов для участников проекта.' :
+                  'Технический директор проекта. Строит AI-агентов для бизнеса и автоматизирует процессы с помощью нейросетей.'}
+                  </p>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 16, flexWrap: 'wrap' }}>
+                    {['ChatGPT', 'Midjourney', 'Claude', 'Автоматизация'].map((s) =>
+                  <span key={s} style={{ background: '#f0edff', color: '#7C6FCD', padding: '4px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600 }}>{s}</span>
+                  )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          {activeTab === 'reviews' &&
+          <div style={wdStyles.tabContent}>
+              <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
+                <div style={{ textAlign: 'center', background: '#f0edff', borderRadius: 16, padding: '16px 24px' }}>
+                  <div style={{ fontSize: 36, fontWeight: 800, color: '#7C6FCD' }}>4.9</div>
+                  <div style={{ fontSize: 18 }}>⭐⭐⭐⭐⭐</div>
+                  <div style={{ fontSize: 12, color: '#9990b0' }}>{reviews.length} отзыва</div>
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, justifyContent: 'center' }}>
+                  {[5, 4, 3].map((s) =>
+                <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 12, color: '#9990b0', width: 16 }}>{s}★</span>
+                      <div style={{ flex: 1, height: 6, background: '#f0eef8', borderRadius: 4, overflow: 'hidden' }}>
+                        <div style={{ height: '100%', background: '#7C6FCD', borderRadius: 4, width: s === 5 ? '80%' : s === 4 ? '15%' : '5%' }} />
+                      </div>
+                    </div>
+                )}
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {reviews.map((r, i) =>
+              <div key={i} style={wdStyles.reviewCard}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <div style={{ fontWeight: 700, color: '#2D2640' }}>{r.name}</div>
+                      <div>{'⭐'.repeat(r.stars)}</div>
+                    </div>
+                    <div style={{ fontSize: 14, color: '#5a5270', lineHeight: 1.7 }}>{r.text}</div>
+                  </div>
+              )}
+              </div>
+              {currentUser &&
+            <div style={{ marginTop: 24 }}>
+                  <textarea placeholder="Поделитесь впечатлением..." value={reviewText} onChange={(e) => setReviewText(e.target.value)}
+              style={{ width: '100%', padding: 14, borderRadius: 14, border: '1.5px solid #ede9ff', fontSize: 14, fontFamily: 'Nunito,sans-serif', outline: 'none', resize: 'vertical', minHeight: 80, boxSizing: 'border-box' }} />
+                  <button style={{ ...wdStyles.enrollBtn, marginTop: 8 }} onClick={() => setReviewText('')}>Отправить отзыв</button>
+                </div>
+            }
+            </div>
+          }
+
+          {activeTab === 'faq' &&
+          <div style={wdStyles.tabContent}>
+              {[
+            ['Нужен ли опыт работы с нейросетями?', 'Нет, воркшоп рассчитан на полных новичков. Мы начинаем с основ.'],
+            ['Что нужно для участия?', 'Компьютер или ноутбук с интернетом. Яндекс ID для входа в Телемост.'],
+            ['Как получить запись?', 'После воркшопа запись автоматически появится в вашем личном кабинете и будет доступна 30 дней.'],
+            ['Можно ли вернуть деньги?', 'Да, в течение 24 часов до начала воркшопа — полный возврат через ЮKassa.'],
+            ['Сколько человек в группе?', `8–15 человек — это позволяет каждому получить внимание преподавателя.`]].
+            map(([q, a], i) => <FaqItem key={i} q={q} a={a} />)}
+            </div>
+          }
+        </div>
+
+        {/* Right: sticky enroll card */}
+        <div style={wdStyles.sidecard}>
+          <div style={{ fontSize: 32, textAlign: 'center', marginBottom: 8 }}>{w.emoji}</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: '#7C6FCD', textAlign: 'center', marginBottom: 4 }}>
+            {w.price.toLocaleString()} ₽
+          </div>
+          <div style={{ fontSize: 13, color: '#9990b0', textAlign: 'center', marginBottom: 20 }}>за 2 сессии воркшопа</div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
+            {['📅 ' + w.date + ' в 19:00', '⏱ ' + w.duration, '👩‍🏫 Ведёт: ' + w.teacher, '👥 Осталось ' + w.seats + ' мест', '💻 Яндекс.Телемост'].map((item) =>
+            <div key={item} style={{ fontSize: 13, color: '#5a5270', display: 'flex', gap: 8 }}>{item}</div>
+            )}
+          </div>
+
+          <button style={wdStyles.enrollBtn} onClick={() => setPaymentWorkshop(w)}>
+            Записаться на воркшоп
+          </button>
+          <button style={{ ...wdStyles.enrollBtn, background: 'none', color: '#7C6FCD', border: '1.5px solid #7C6FCD', boxShadow: 'none', marginTop: 8 }}
+          onClick={() => setPage('catalog')}>
+            Смотреть другие
+          </button>
+
+          <div style={{ textAlign: 'center', marginTop: 16, fontSize: 12, color: '#c0bad8' }}>
+            🔒 Безопасная оплата через ЮKassa
+          </div>
+          <div style={{ textAlign: 'center', fontSize: 12, color: '#c0bad8', marginTop: 4 }}>
+            Возврат в течение 24 часов до начала
+          </div>
+        </div>
+      </div>
+    </div>);
+
+};
+
+const FaqItem = ({ q, a }) => {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div style={{ borderBottom: '1px solid #f0eef8', padding: '16px 0' }}>
+      <button style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}
+      onClick={() => setOpen(!open)}>
+        <span style={{ fontSize: 15, fontWeight: 600, color: '#2D2640' }}>{q}</span>
+        <span style={{ color: '#7C6FCD', fontSize: 18, flexShrink: 0 }}>{open ? '−' : '+'}</span>
+      </button>
+      {open && <div style={{ fontSize: 14, color: '#7B7491', lineHeight: 1.7, marginTop: 10, paddingRight: 24 }}>{a}</div>}
+    </div>);
+
+};
+
+const wdStyles = {
+  page: { background: '#faf9ff', minHeight: '100vh', paddingBottom: 60 },
+  breadcrumb: { maxWidth: 1200, margin: '0 auto', padding: '20px 24px', display: 'flex', alignItems: 'center', gap: 8 },
+  back: { background: 'none', border: 'none', color: '#7C6FCD', fontWeight: 600, cursor: 'pointer', fontSize: 13, padding: 0 },
+  container: { maxWidth: 1200, margin: '0 auto', padding: '0 24px', display: 'flex', gap: 28, alignItems: 'flex-start', flexWrap: 'wrap' },
+  main: { flex: '1 1 520px', minWidth: 0 },
+  h1: { fontSize: 'clamp(22px,3vw,34px)', fontWeight: 800, color: '#2D2640', margin: '0 0 12px', lineHeight: 1.25 },
+  desc: { fontSize: 15, color: '#7B7491', lineHeight: 1.7, margin: '0 0 20px' },
+  tag: { fontSize: 11, fontWeight: 700, color: '#7C6FCD', background: '#ede9ff', padding: '4px 12px', borderRadius: 8 },
+  metaRow: { display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 28 },
+  metaItem: { display: 'flex', gap: 6, alignItems: 'center', fontSize: 13, color: '#5a5270', background: '#f7f5ff', padding: '6px 12px', borderRadius: 10 },
+  tabs: { display: 'flex', gap: 0, borderBottom: '2px solid #f0eef8', marginBottom: 28, overflowX: 'auto' },
+  tab: { padding: '12px 20px', background: 'none', border: 'none', fontSize: 14, fontWeight: 600, color: '#9990b0', cursor: 'pointer', whiteSpace: 'nowrap', borderBottom: '2px solid transparent', marginBottom: -2 },
+  tabActive: { color: '#7C6FCD', borderBottomColor: '#7C6FCD' },
+  tabContent: {},
+  programList: { display: 'flex', flexDirection: 'column', gap: 0, marginBottom: 28, position: 'relative', paddingLeft: 20 },
+  programItem: { display: 'flex', gap: 12, paddingBottom: 20, position: 'relative' },
+  programTime: { fontSize: 12, color: '#9990b0', fontWeight: 600, width: 90, flexShrink: 0, paddingTop: 2 },
+  programDot: { width: 10, height: 10, borderRadius: '50%', background: '#7C6FCD', flexShrink: 0, marginTop: 4 },
+  programBody: { flex: 1 },
+  includes: { background: '#f7f5ff', borderRadius: 16, padding: 20 },
+  includesGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 },
+  includeItem: { fontSize: 13, color: '#5a5270', background: 'white', borderRadius: 10, padding: '10px 12px', fontWeight: 500 },
+  teacherCard: { display: 'flex', gap: 20, background: '#f7f5ff', borderRadius: 20, padding: 24, flexWrap: 'wrap' },
+  teacherAvatar: {
+    fontSize: 52, width: 80, height: 80, borderRadius: 20,
+    background: 'linear-gradient(135deg,#ede9ff,#fff0eb)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+  },
+  reviewCard: { background: '#f7f5ff', borderRadius: 16, padding: 18 },
+  sidecard: {
+    width: 300, flexShrink: 0, background: 'white', borderRadius: 24, padding: 28,
+    boxShadow: '0 8px 32px rgba(124,111,205,0.12)', position: 'sticky', top: 80,
+    border: '1.5px solid #ede9ff'
+  },
+  enrollBtn: {
+    width: '100%', padding: 14, borderRadius: 14, border: 'none',
+    background: 'linear-gradient(135deg,#7C6FCD,#9B8FE0)', color: 'white',
+    fontWeight: 700, fontSize: 15, cursor: 'pointer', boxShadow: '0 4px 16px rgba(124,111,205,0.35)',
+    fontFamily: 'Nunito,sans-serif'
+  }
+};
+
+
+
+// ===== azbuka/pages/StudentDashboard.jsx =====
+// Student Dashboard
+const StudentDashboard = ({ currentUser, setPage, setAuthModal }) => {
+  const [activeTab, setActiveTab] = React.useState('overview');
+  const [chatMsg, setChatMsg] = React.useState('');
+  const [messages, setMessages] = React.useState([
+  { from: 'teacher', name: 'Катя', text: 'Привет! Как продвигается практика после воркшопа?', time: 'вчера' },
+  { from: 'student', name: 'Я', text: 'Всё хорошо, уже применила промты для своих КП!', time: 'вчера' },
+  { from: 'teacher', name: 'Катя', text: 'Отлично! Если будут вопросы — пиши 😊', time: '10:30' }]
+  );
+
+  const myWorkshops = [
+  { id: 1, title: 'ChatGPT для предпринимателя', emoji: '💩', date: '26 апр', progress: 75, status: 'active' },
+  { id: 2, title: 'Нейросети для дизайнера', emoji: '🎨', date: '3 мая', progress: 0, status: 'upcoming' }];
+
+
+  const materials = [
+  { title: 'Запись воркшопа — ChatGPT для бизнеса', type: 'video', size: '1.2 ГБ', date: '20 апр' },
+  { title: 'Шаблоны промтов — базовый набор', type: 'doc', size: '245 КБ', date: '20 апр' },
+  { title: 'Алгоритм написания КП через ChatGPT', type: 'doc', size: '118 КБ', date: '20 апр' },
+  { title: 'Домашнее задание — Практика промтов', type: 'task', size: '—', date: '20 апр' }];
+
+
+  const recommended = [
+  { id: 3, title: 'AI-контент для соцсетей', emoji: '✍️', price: 2000, date: '10 мая' },
+  { id: 5, title: 'Промт-инжиниринг: продвинутый', emoji: '⚙️', price: 3500, date: '24 мая' }];
+
+
+  const sendMsg = () => {
+    if (!chatMsg.trim()) return;
+    setMessages((m) => [...m, { from: 'student', name: 'Я', text: chatMsg, time: 'сейчас' }]);
+    setChatMsg('');
+    setTimeout(() => {
+      setMessages((m) => [...m, { from: 'teacher', name: 'Катя', text: 'Спасибо за вопрос! Отвечу в ближайшее время 👍', time: 'сейчас' }]);
+    }, 1200);
+  };
+
+  const tabs = [
+  { id: 'overview', label: 'Обзор' },
+  { id: 'materials', label: 'Материалы' },
+  { id: 'progress', label: 'Прогресс' },
+  { id: 'chat', label: 'Чат' }];
+
+
+  return (
+    <div style={sdStyles.page}>
+      {/* Header */}
+      <div style={sdStyles.header}>
+        <div style={sdStyles.headerInner}>
+          <div style={sdStyles.welcome}>
+            <div style={sdStyles.avatar}>{currentUser?.name?.[0] || 'У'}</div>
+            <div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: '#2D2640' }}>Привет, {currentUser?.name || 'Ученик'}! 👋</div>
+              <div style={{ fontSize: 14, color: '#9990b0' }}>Личный кабинет ученика</div>
+            </div>
+          </div>
+          <div style={sdStyles.statsRow}>
+            {[['2', 'Воркшопа'], ['75%', 'Прогресс'], ['3', 'Материала']].map(([n, l]) =>
+            <div key={l} style={sdStyles.statBox}>
+                <div style={sdStyles.statNum}>{n}</div>
+                <div style={sdStyles.statLabel}>{l}</div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div style={sdStyles.tabsBar}>
+        <div style={sdStyles.tabsInner}>
+          {tabs.map((t) =>
+          <button key={t.id} style={{ ...sdStyles.tab, ...(activeTab === t.id ? sdStyles.tabActive : {}) }}
+          onClick={() => setActiveTab(t.id)}>{t.label}</button>
+          )}
+        </div>
+      </div>
+
+      <div style={sdStyles.container}>
+        {/* OVERVIEW */}
+        {activeTab === 'overview' &&
+        <div style={sdStyles.grid2}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <div style={sdStyles.card}>
+                <div style={sdStyles.cardTitle}>Мои воркшопы</div>
+                {myWorkshops.map((w) =>
+              <div key={w.id} style={sdStyles.workshopRow}>
+                    <span style={{ fontSize: 28 }}>{w.emoji}</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 700, color: '#2D2640', fontSize: 14, marginBottom: 4 }}>{w.title}</div>
+                      <div style={{ fontSize: 12, color: '#9990b0', marginBottom: 6 }}>📅 {w.date} · {w.status === 'active' ? '🟢 Идёт сейчас' : '🔵 Предстоит'}</div>
+                      {w.status === 'active' &&
+                  <div style={sdStyles.progressBar}>
+                          <div style={{ ...sdStyles.progressFill, width: w.progress + '%' }} />
+                        </div>
+                  }
+                    </div>
+                    <button style={sdStyles.btnMini} onClick={() => setPage('workshop-' + w.id)}>→</button>
+                  </div>
+              )}
+              </div>
+
+              <div style={sdStyles.card}>
+                <div style={sdStyles.cardTitle}>Рекомендуем для вас</div>
+                {recommended.map((r) =>
+              <div key={r.id} style={{ ...sdStyles.workshopRow, cursor: 'pointer' }} onClick={() => setPage('workshop-' + r.id)}>
+                    <span style={{ fontSize: 28 }}>{r.emoji}</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600, color: '#2D2640', fontSize: 14 }}>{r.title}</div>
+                      <div style={{ fontSize: 12, color: '#9990b0' }}>📅 {r.date} · {r.price.toLocaleString()} ₽</div>
+                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#7C6FCD' }}>Записаться →</span>
+                  </div>
+              )}
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <div style={sdStyles.card}>
+                <div style={sdStyles.cardTitle}>Последние материалы</div>
+                {materials.slice(0, 3).map((m) =>
+              <div key={m.title} style={sdStyles.materialRow}>
+                    <span style={{ fontSize: 22 }}>{m.type === 'video' ? '🎥' : m.type === 'task' ? '📌' : '📄'}</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#2D2640' }}>{m.title}</div>
+                      <div style={{ fontSize: 11, color: '#9990b0' }}>{m.date} · {m.size}</div>
+                    </div>
+                    <button style={sdStyles.btnMini}>↓</button>
+                  </div>
+              )}
+                <button style={sdStyles.linkBtn} onClick={() => setActiveTab('materials')}>Все материалы →</button>
+              </div>
+
+              <div style={{ ...sdStyles.card, background: 'linear-gradient(135deg,#7C6FCD,#9B8FE0)', color: 'white' }}>
+                <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 8 }}>База знаний</div>
+                <div style={{ fontSize: 13, opacity: 0.85, marginBottom: 16 }}>Шаблоны промтов, алгоритмы и видеонарезки всех воркшопов</div>
+                <button style={{ background: 'white', color: '#7C6FCD', border: 'none', borderRadius: 12, padding: '9px 20px', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'Nunito,sans-serif' }}>
+                  990 ₽/мес → Подключить
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+
+        {/* MATERIALS */}
+        {activeTab === 'materials' &&
+        <div style={sdStyles.card}>
+            <div style={sdStyles.cardTitle}>Учебные материалы</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {materials.map((m) =>
+            <div key={m.title} style={{ ...sdStyles.materialRow, padding: '14px 16px', background: '#faf9ff', borderRadius: 14 }}>
+                  <span style={{ fontSize: 28 }}>{m.type === 'video' ? '🎥' : m.type === 'task' ? '📌' : '📄'}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 600, color: '#2D2640', fontSize: 14, marginBottom: 2 }}>{m.title}</div>
+                    <div style={{ fontSize: 12, color: '#9990b0' }}>{m.date} · {m.size}</div>
+                  </div>
+                  <button style={{ ...sdStyles.btnMini, background: '#7C6FCD', color: 'white', borderRadius: 10, padding: '7px 14px', fontSize: 12 }}>
+                    {m.type === 'task' ? 'Открыть' : 'Скачать'}
+                  </button>
+                </div>
+            )}
+            </div>
+          </div>
+        }
+
+        {/* PROGRESS */}
+        {activeTab === 'progress' &&
+        <div style={sdStyles.grid2}>
+            <div style={sdStyles.card}>
+              <div style={sdStyles.cardTitle}>Прогресс по воркшопу</div>
+              {myWorkshops.filter((w) => w.status === 'active').map((w) =>
+            <div key={w.id}>
+                  <div style={{ fontWeight: 600, color: '#2D2640', marginBottom: 12 }}>{w.emoji} {w.title}</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {[['Сессия 1 — Вводная', true], ['Практика дома', true], ['Сессия 2 — Разбор', false], ['Домашнее задание', false]].map(([t, done]) =>
+                <div key={t} style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                        <div style={{ width: 20, height: 20, borderRadius: '50%', background: done ? '#6DC4A5' : '#ede9ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, color: done ? 'white' : '#c0bad8', flexShrink: 0 }}>{done ? '✓' : ''}</div>
+                        <span style={{ fontSize: 14, color: done ? '#2D2640' : '#9990b0' }}>{t}</span>
+                      </div>
+                )}
+                  </div>
+                  <div style={{ marginTop: 16 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 6 }}>
+                      <span style={{ color: '#7B7491' }}>Общий прогресс</span>
+                      <span style={{ fontWeight: 700, color: '#7C6FCD' }}>{w.progress}%</span>
+                    </div>
+                    <div style={sdStyles.progressBar}>
+                      <div style={{ ...sdStyles.progressFill, width: w.progress + '%' }} />
+                    </div>
+                  </div>
+                </div>
+            )}
+            </div>
+            <div style={sdStyles.card}>
+              <div style={sdStyles.cardTitle}>Достижения</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                {[['🎓', 'Первый воркшоп', 'Завершён'], ['⚡', 'Быстрый старт', 'В первый день'], ['💬', 'Активный участник', '5+ вопросов'], ['📚', 'Практик', 'Сдал задание']].map(([e, t, d]) =>
+              <div key={t} style={{ background: '#f7f5ff', borderRadius: 14, padding: '16px', textAlign: 'center' }}>
+                    <div style={{ fontSize: 32, marginBottom: 8 }}>{e}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#2D2640' }}>{t}</div>
+                    <div style={{ fontSize: 11, color: '#9990b0' }}>{d}</div>
+                  </div>
+              )}
+              </div>
+            </div>
+          </div>
+        }
+
+        {/* CHAT */}
+        {activeTab === 'chat' &&
+        <div style={{ ...sdStyles.card, maxWidth: 640 }}>
+            <div style={sdStyles.cardTitle}>Чат с преподавателем</div>
+            <div style={sdStyles.chatArea}>
+              {messages.map((m, i) =>
+            <div key={i} style={{ ...sdStyles.msgRow, justifyContent: m.from === 'student' ? 'flex-end' : 'flex-start' }}>
+                  {m.from === 'teacher' && <div style={sdStyles.msgAvatar}>{m.name[0]}</div>}
+                  <div style={{ ...sdStyles.bubble, ...(m.from === 'student' ? sdStyles.bubbleStudent : sdStyles.bubbleTeacher) }}>
+                    {m.from === 'teacher' && <div style={{ fontSize: 11, color: '#9990b0', marginBottom: 4, fontWeight: 600 }}>{m.name}</div>}
+                    <div style={{ fontSize: 14 }}>{m.text}</div>
+                    <div style={{ fontSize: 11, color: m.from === 'student' ? 'rgba(255,255,255,0.6)' : '#c0bad8', marginTop: 4, textAlign: 'right' }}>{m.time}</div>
+                  </div>
+                </div>
+            )}
+            </div>
+            <div style={sdStyles.chatInput}>
+              <input placeholder="Напишите сообщение..." value={chatMsg} onChange={(e) => setChatMsg(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && sendMsg()}
+            style={{ flex: 1, padding: '10px 14px', borderRadius: 12, border: '1.5px solid #ede9ff', fontSize: 14, fontFamily: 'Nunito,sans-serif', outline: 'none' }} />
+              <button style={{ background: 'linear-gradient(135deg,#7C6FCD,#9B8FE0)', border: 'none', color: 'white', borderRadius: 12, padding: '10px 20px', fontWeight: 700, cursor: 'pointer', fontSize: 14, fontFamily: 'Nunito,sans-serif' }}
+            onClick={sendMsg}>→</button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>);
+
+};
+
+const sdStyles = {
+  page: { background: '#faf9ff', minHeight: '100vh' },
+  header: { background: 'linear-gradient(135deg,#f7f5ff,#fff0eb)', padding: '36px 24px' },
+  headerInner: { maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 },
+  welcome: { display: 'flex', alignItems: 'center', gap: 16 },
+  avatar: { width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg,#7C6FCD,#F5856A)', color: 'white', fontWeight: 800, fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  statsRow: { display: 'flex', gap: 16 },
+  statBox: { background: 'white', borderRadius: 16, padding: '12px 20px', textAlign: 'center', boxShadow: '0 2px 12px rgba(124,111,205,0.1)' },
+  statNum: { fontSize: 22, fontWeight: 800, color: '#7C6FCD' },
+  statLabel: { fontSize: 12, color: '#9990b0' },
+  tabsBar: { borderBottom: '2px solid #ede9ff', background: 'white' },
+  tabsInner: { maxWidth: 1200, margin: '0 auto', padding: '0 24px', display: 'flex', gap: 0, overflowX: 'auto' },
+  tab: { padding: '14px 20px', background: 'none', border: 'none', fontSize: 14, fontWeight: 600, color: '#9990b0', cursor: 'pointer', borderBottom: '2px solid transparent', marginBottom: -2, whiteSpace: 'nowrap' },
+  tabActive: { color: '#7C6FCD', borderBottomColor: '#7C6FCD' },
+  container: { maxWidth: 1200, margin: '0 auto', padding: '28px 24px' },
+  grid2: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', gap: 20 },
+  card: { background: 'white', borderRadius: 20, padding: 24, boxShadow: '0 4px 20px rgba(124,111,205,0.08)' },
+  cardTitle: { fontSize: 16, fontWeight: 700, color: '#2D2640', marginBottom: 16, paddingBottom: 12, borderBottom: '1px solid #f0eef8' },
+  workshopRow: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid #f7f5ff' },
+  progressBar: { height: 6, background: '#ede9ff', borderRadius: 4, overflow: 'hidden' },
+  progressFill: { height: '100%', background: 'linear-gradient(90deg,#7C6FCD,#9B8FE0)', borderRadius: 4, transition: 'width 0.3s' },
+  materialRow: { display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0' },
+  btnMini: { background: '#f7f5ff', border: 'none', color: '#7C6FCD', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', fontWeight: 700, fontSize: 13 },
+  linkBtn: { background: 'none', border: 'none', color: '#7C6FCD', fontWeight: 700, fontSize: 13, cursor: 'pointer', marginTop: 8, padding: 0 },
+  chatArea: { display: 'flex', flexDirection: 'column', gap: 12, minHeight: 280, maxHeight: 360, overflowY: 'auto', padding: '8px 0', marginBottom: 16 },
+  msgRow: { display: 'flex', gap: 8, alignItems: 'flex-end' },
+  msgAvatar: { width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg,#7C6FCD,#9B8FE0)', color: 'white', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  bubble: { maxWidth: '75%', padding: '10px 14px', borderRadius: 16, lineHeight: 1.5 },
+  bubbleTeacher: { background: '#f7f5ff', color: '#2D2640', borderBottomLeftRadius: 4 },
+  bubbleStudent: { background: 'linear-gradient(135deg,#7C6FCD,#9B8FE0)', color: 'white', borderBottomRightRadius: 4 },
+  chatInput: { display: 'flex', gap: 10 }
+};
+
+
+
+// ===== azbuka/pages/TeacherDashboard.jsx =====
+// Teacher Dashboard
+const TeacherDashboard = ({ currentUser, setPage }) => {
+  const [activeTab, setActiveTab] = React.useState('overview');
+  const [chatMsg, setChatMsg] = React.useState('');
+  const [messages, setMessages] = React.useState([
+  { from: 'student', name: 'Алексей', text: 'Добрый день! Не могу применить промт из задания, получается шаблонный текст.', time: '10:15' },
+  { from: 'teacher', name: 'Я', text: 'Привет! Пришли свой промт — разберём вместе', time: '10:20' }]
+  );
+
+  const students = [
+  { name: 'Алексей М.', progress: 75, status: 'active', task: 'Сдал', emoji: '👨‍💼' },
+  { name: 'Марина К.', progress: 100, status: 'done', task: 'Сдала', emoji: '👩‍🎨' },
+  { name: 'Дмитрий С.', progress: 40, status: 'active', task: 'Не сдал', emoji: '👨‍💻' },
+  { name: 'Ольга Т.', progress: 60, status: 'active', task: 'Сдала', emoji: '👩‍💼' },
+  { name: 'Иван Р.', progress: 20, status: 'behind', task: 'Не сдал', emoji: '👨‍🔧' }];
+
+
+  const myWorkshops = [
+  { id: 1, title: 'ChatGPT для предпринимателя', emoji: '💩', date: '26 апр', enrolled: 12, capacity: 15, status: 'active' },
+  { id: 2, title: 'Нейросети для дизайнера', emoji: '🎨', date: '3 мая', enrolled: 5, capacity: 15, status: 'upcoming' }];
+
+
+  const analytics = [
+  { label: 'Записей этот месяц', value: '17', icon: '👥', color: '#7C6FCD' },
+  { label: 'Средняя оценка', value: '4.9 ★', icon: '⭐', color: '#F5856A' },
+  { label: 'Выручка (апр)', value: '42 500 ₽', icon: '💰', color: '#6DC4A5' },
+  { label: 'Возврат учеников', value: '68%', icon: '🔄', color: '#7C6FCD' }];
+
+
+  const sendMsg = () => {
+    if (!chatMsg.trim()) return;
+    setMessages((m) => [...m, { from: 'teacher', name: 'Я', text: chatMsg, time: 'сейчас' }]);
+    setChatMsg('');
+  };
+
+  const tabs = [
+  { id: 'overview', label: 'Обзор' },
+  { id: 'students', label: 'Ученики' },
+  { id: 'analytics', label: 'Аналитика' },
+  { id: 'chat', label: 'Чат с группой' },
+  { id: 'guide', label: 'Гайд для новых' }];
+
+
+  return (
+    <div style={tdStyles.page}>
+      <div style={tdStyles.header}>
+        <div style={tdStyles.headerInner}>
+          <div style={tdStyles.welcome}>
+            <div style={tdStyles.avatar}>{currentUser?.name?.[0] || 'П'}</div>
+            <div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: '#2D2640' }}>Кабинет преподавателя 🧑‍🏫</div>
+              <div style={{ fontSize: 14, color: '#9990b0' }}>{currentUser?.name || 'Преподаватель'} · Азбука нейросетей</div>
+            </div>
+          </div>
+          <div style={tdStyles.statsRow}>
+            {analytics.slice(0, 3).map((a) =>
+            <div key={a.label} style={tdStyles.statBox}>
+                <div style={{ fontSize: 20 }}>{a.icon}</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: a.color }}>{a.value}</div>
+                <div style={{ fontSize: 11, color: '#9990b0', maxWidth: 80, textAlign: 'center' }}>{a.label}</div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div style={tdStyles.tabsBar}>
+        <div style={tdStyles.tabsInner}>
+          {tabs.map((t) =>
+          <button key={t.id} style={{ ...tdStyles.tab, ...(activeTab === t.id ? tdStyles.tabActive : {}) }}
+          onClick={() => setActiveTab(t.id)}>{t.label}</button>
+          )}
+        </div>
+      </div>
+
+      <div style={tdStyles.container}>
+
+        {/* OVERVIEW */}
+        {activeTab === 'overview' &&
+        <div style={tdStyles.grid2}>
+            <div style={tdStyles.card}>
+              <div style={tdStyles.cardTitle}>Мои воркшопы</div>
+              {myWorkshops.map((w) =>
+            <div key={w.id} style={tdStyles.workshopRow}>
+                  <span style={{ fontSize: 28 }}>{w.emoji}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, color: '#2D2640', fontSize: 14, marginBottom: 4 }}>{w.title}</div>
+                    <div style={{ fontSize: 12, color: '#9990b0' }}>📅 {w.date} · 👥 {w.enrolled}/{w.capacity}</div>
+                    <div style={{ marginTop: 6, height: 5, background: '#ede9ff', borderRadius: 3, overflow: 'hidden' }}>
+                      <div style={{ height: '100%', background: 'linear-gradient(90deg,#7C6FCD,#9B8FE0)', width: w.enrolled / w.capacity * 100 + '%', borderRadius: 3 }} />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <button style={tdStyles.btnMini} onClick={() => setActiveTab('students')}>Ученики</button>
+                    <button style={{ ...tdStyles.btnMini, background: '#fff0eb', color: '#F5856A' }}>Ред.</button>
+                  </div>
+                </div>
+            )}
+              <button style={tdStyles.addBtn}>+ Создать воркшоп</button>
+            </div>
+
+            <div style={tdStyles.card}>
+              <div style={tdStyles.cardTitle}>Требуют внимания</div>
+              {students.filter((s) => s.status === 'behind').map((s) =>
+            <div key={s.name} style={{ ...tdStyles.workshopRow, background: '#fff5f5', borderRadius: 12, padding: 12 }}>
+                  <span style={{ fontSize: 24 }}>{s.emoji}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 600, color: '#2D2640', fontSize: 14 }}>{s.name}</div>
+                    <div style={{ fontSize: 12, color: '#F5856A' }}>⚠️ Отстаёт · {s.progress}% прогресс</div>
+                  </div>
+                  <button style={{ ...tdStyles.btnMini, background: '#F5856A', color: 'white' }} onClick={() => setActiveTab('chat')}>
+                    Написать
+                  </button>
+                </div>
+            )}
+              <div style={{ ...tdStyles.cardTitle, marginTop: 20, borderTop: '1px solid #f0eef8', paddingTop: 16, marginBottom: 10 }}>Последние отзывы</div>
+              {[
+            { text: 'Очень практично! За 3 часа сделала то, на что уходили дни.', name: 'Марина К.', stars: 5 },
+            { text: 'Хороший формат. Небольшая группа — можно задавать вопросы.', name: 'Дмитрий С.', stars: 4 }].
+            map((r) =>
+            <div key={r.name} style={{ padding: '10px 0', borderBottom: '1px solid #f7f5ff' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: '#2D2640' }}>{r.name}</span>
+                    <span style={{ fontSize: 12 }}>{'⭐'.repeat(r.stars)}</span>
+                  </div>
+                  <div style={{ fontSize: 13, color: '#7B7491', lineHeight: 1.5 }}>{r.text}</div>
+                </div>
+            )}
+            </div>
+          </div>
+        }
+
+        {/* STUDENTS */}
+        {activeTab === 'students' &&
+        <div style={tdStyles.card}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <div style={{ ...tdStyles.cardTitle, margin: 0 }}>Ученики — ChatGPT для предпринимателя</div>
+              <button style={{ background: '#f0edff', color: '#7C6FCD', border: 'none', borderRadius: 10, padding: '7px 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Nunito,sans-serif' }}>
+                📤 Уведомление всем
+              </button>
+            </div>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+                <thead>
+                  <tr style={{ background: '#faf9ff' }}>
+                    {['Ученик', 'Прогресс', 'Задание', 'Статус', 'Действие'].map((h) =>
+                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', color: '#9990b0', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{h}</th>
+                  )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {students.map((s) =>
+                <tr key={s.name} style={{ borderTop: '1px solid #f0eef8' }}>
+                      <td style={{ padding: '12px 14px' }}>
+                        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                          <span style={{ fontSize: 20 }}>{s.emoji}</span>
+                          <span style={{ fontWeight: 600, color: '#2D2640' }}>{s.name}</span>
+                        </div>
+                      </td>
+                      <td style={{ padding: '12px 14px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <div style={{ width: 80, height: 6, background: '#ede9ff', borderRadius: 4, overflow: 'hidden' }}>
+                            <div style={{ height: '100%', background: s.progress === 100 ? '#6DC4A5' : s.progress < 40 ? '#F5856A' : '#7C6FCD', width: s.progress + '%' }} />
+                          </div>
+                          <span style={{ fontSize: 12, color: '#7B7491' }}>{s.progress}%</span>
+                        </div>
+                      </td>
+                      <td style={{ padding: '12px 14px' }}>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: s.task.includes('Не') ? '#F5856A' : '#6DC4A5',
+                      background: s.task.includes('Не') ? '#fff0eb' : '#e8f8f2', padding: '3px 10px', borderRadius: 8 }}>
+                          {s.task}
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px 14px' }}>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: s.status === 'done' ? '#6DC4A5' : s.status === 'behind' ? '#F5856A' : '#7C6FCD',
+                      background: s.status === 'done' ? '#e8f8f2' : s.status === 'behind' ? '#fff0eb' : '#ede9ff', padding: '3px 10px', borderRadius: 8 }}>
+                          {s.status === 'done' ? '✓ Готово' : s.status === 'behind' ? '⚠️ Отстаёт' : '● Активен'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px 14px' }}>
+                        <button style={tdStyles.btnMini} onClick={() => setActiveTab('chat')}>Написать</button>
+                      </td>
+                    </tr>
+                )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+
+        {/* ANALYTICS */}
+        {activeTab === 'analytics' &&
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 16 }}>
+              {analytics.map((a) =>
+            <div key={a.label} style={{ ...tdStyles.card, textAlign: 'center', padding: '28px 20px' }}>
+                  <div style={{ fontSize: 36, marginBottom: 8 }}>{a.icon}</div>
+                  <div style={{ fontSize: 28, fontWeight: 800, color: a.color, marginBottom: 4 }}>{a.value}</div>
+                  <div style={{ fontSize: 13, color: '#9990b0' }}>{a.label}</div>
+                </div>
+            )}
+            </div>
+            <div style={tdStyles.card}>
+              <div style={tdStyles.cardTitle}>Финансовая модель (апрель)</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {[
+              { label: 'Воркшопы (15 чел. × 2 500 ₽ × 2)', sum: '75 000 ₽', color: '#7C6FCD' },
+              { label: 'База знаний (30 подписчиков × 1 200 ₽)', sum: '36 000 ₽', color: '#6DC4A5' },
+              { label: 'Консультации 1:1 (3 × 6 000 ₽)', sum: '18 000 ₽', color: '#F5856A' },
+              { label: 'Расходы (Яндекс 360 + Облако)', sum: '−1 100 ₽', color: '#c0bad8' }].
+              map((r) =>
+              <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f7f5ff' }}>
+                    <span style={{ fontSize: 14, color: '#5a5270' }}>{r.label}</span>
+                    <span style={{ fontSize: 16, fontWeight: 800, color: r.color }}>{r.sum}</span>
+                  </div>
+              )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', marginTop: 4 }}>
+                  <span style={{ fontSize: 15, fontWeight: 700, color: '#2D2640' }}>Итого / месяц</span>
+                  <span style={{ fontSize: 20, fontWeight: 800, color: '#6DC4A5' }}>≈ 128 000 ₽</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        {/* CHAT */}
+        {activeTab === 'chat' &&
+        <div style={{ ...tdStyles.card, maxWidth: 640 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <div style={{ ...tdStyles.cardTitle, margin: 0 }}>Чат с группой</div>
+              <button style={{ background: '#f0edff', color: '#7C6FCD', border: 'none', borderRadius: 10, padding: '7px 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Nunito,sans-serif' }}>
+                📢 Массовое уведомление
+              </button>
+            </div>
+            <div style={sdStyles.chatArea}>
+              {messages.map((m, i) =>
+            <div key={i} style={{ ...sdStyles.msgRow, justifyContent: m.from === 'teacher' ? 'flex-end' : 'flex-start' }}>
+                  {m.from === 'student' && <div style={{ ...sdStyles.msgAvatar, background: 'linear-gradient(135deg,#F5856A,#f0a882)' }}>{m.name[0]}</div>}
+                  <div style={{ ...sdStyles.bubble, ...(m.from === 'teacher' ? sdStyles.bubbleStudent : sdStyles.bubbleTeacher) }}>
+                    {m.from === 'student' && <div style={{ fontSize: 11, color: '#9990b0', marginBottom: 4, fontWeight: 600 }}>{m.name}</div>}
+                    <div style={{ fontSize: 14 }}>{m.text}</div>
+                    <div style={{ fontSize: 11, color: m.from === 'teacher' ? 'rgba(255,255,255,0.6)' : '#c0bad8', marginTop: 4, textAlign: 'right' }}>{m.time}</div>
+                  </div>
+                </div>
+            )}
+            </div>
+            <div style={sdStyles.chatInput}>
+              <input placeholder="Ответить или отправить уведомление..." value={chatMsg} onChange={(e) => setChatMsg(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && sendMsg()}
+            style={{ flex: 1, padding: '10px 14px', borderRadius: 12, border: '1.5px solid #ede9ff', fontSize: 14, fontFamily: 'Nunito,sans-serif', outline: 'none' }} />
+              <button style={{ background: 'linear-gradient(135deg,#7C6FCD,#9B8FE0)', border: 'none', color: 'white', borderRadius: 12, padding: '10px 20px', fontWeight: 700, cursor: 'pointer', fontSize: 14, fontFamily: 'Nunito,sans-serif' }} onClick={sendMsg}>→</button>
+            </div>
+          </div>
+        }
+
+        {/* GUIDE */}
+        {activeTab === 'guide' &&
+        <div style={{ ...tdStyles.card, maxWidth: 720 }}>
+            <div style={tdStyles.cardTitle}>Гайд для новых преподавателей</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+              {[
+            { n: 1, title: 'Регистрация в Яндекс 360', desc: 'Получите Яндекс ID и подключитесь к рабочему пространству команды. Приглашение придёт на корпоративную почту.', done: true },
+            { n: 2, title: 'Знакомство с инструментами', desc: 'Яндекс.Телемост для эфиров, Яндекс.Диск для материалов, Яндекс.Формы для анкет участников. Тест-эфир с командой.', done: true },
+            { n: 3, title: 'Создание первого воркшопа', desc: 'Заполните карточку воркшопа: тема, дата, программа, целевая аудитория. Воркшоп появится в каталоге.', done: false },
+            { n: 4, title: 'Запуск сбора участников', desc: 'Анкета через Яндекс.Формы → оплата через ЮKassa → ссылка на Телемост участникам автоматически.', done: false },
+            { n: 5, title: 'Проведение воркшопа', desc: 'Живой эфир 2–3 часа. Запись автосохраняется. После — загрузите материалы на Яндекс.Диск.', done: false },
+            { n: 6, title: 'Обратная связь и доработка', desc: 'Соберите отзывы через Яндекс.Формы. Используйте аналитику для улучшения следующего воркшопа.', done: false }].
+            map((step) =>
+            <div key={step.n} style={{ display: 'flex', gap: 16, padding: '20px 0', borderBottom: '1px solid #f0eef8' }}>
+                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: step.done ? '#6DC4A5' : '#ede9ff', color: step.done ? 'white' : '#7C6FCD', fontWeight: 800, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {step.done ? '✓' : step.n}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, color: '#2D2640', fontSize: 15, marginBottom: 6 }}>{step.title}</div>
+                    <div style={{ fontSize: 14, color: '#7B7491', lineHeight: 1.6 }}>{step.desc}</div>
+                  </div>
+                </div>
+            )}
+            </div>
+          </div>
+        }
+      </div>
+    </div>);
+
+};
+
+const tdStyles = {
+  page: { background: '#faf9ff', minHeight: '100vh' },
+  header: { background: 'linear-gradient(135deg,#f0edff,#fff0eb)', padding: '36px 24px' },
+  headerInner: { maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 },
+  welcome: { display: 'flex', alignItems: 'center', gap: 16 },
+  avatar: { width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg,#F5856A,#f0a882)', color: 'white', fontWeight: 800, fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  statsRow: { display: 'flex', gap: 12, flexWrap: 'wrap' },
+  statBox: { background: 'white', borderRadius: 16, padding: '12px 16px', textAlign: 'center', boxShadow: '0 2px 12px rgba(124,111,205,0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 },
+  tabsBar: { borderBottom: '2px solid #ede9ff', background: 'white' },
+  tabsInner: { maxWidth: 1200, margin: '0 auto', padding: '0 24px', display: 'flex', overflowX: 'auto' },
+  tab: { padding: '14px 20px', background: 'none', border: 'none', fontSize: 14, fontWeight: 600, color: '#9990b0', cursor: 'pointer', borderBottom: '2px solid transparent', marginBottom: -2, whiteSpace: 'nowrap' },
+  tabActive: { color: '#7C6FCD', borderBottomColor: '#7C6FCD' },
+  container: { maxWidth: 1200, margin: '0 auto', padding: '28px 24px' },
+  grid2: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', gap: 20 },
+  card: { background: 'white', borderRadius: 20, padding: 24, boxShadow: '0 4px 20px rgba(124,111,205,0.08)' },
+  cardTitle: { fontSize: 16, fontWeight: 700, color: '#2D2640', marginBottom: 16, paddingBottom: 12, borderBottom: '1px solid #f0eef8' },
+  workshopRow: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid #f7f5ff' },
+  btnMini: { background: '#f0edff', border: 'none', color: '#7C6FCD', borderRadius: 8, padding: '6px 14px', cursor: 'pointer', fontWeight: 700, fontSize: 12, fontFamily: 'Nunito,sans-serif', whiteSpace: 'nowrap' },
+  addBtn: { width: '100%', marginTop: 12, padding: '10px', borderRadius: 12, border: '1.5px dashed #7C6FCD', background: 'none', color: '#7C6FCD', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'Nunito,sans-serif' }
+};
+
+
+
+// ===== azbuka/pages/Extras.jsx =====
+// FAQ + About + Payment components
+
+// ---- FAQ PAGE ----
+const FAQPage = ({ setPage, setAuthModal }) => {
+  const sections = [
+  { title: 'Об обучении', items: [
+    ['Нужен ли опыт работы с нейросетями?', 'Нет. «Азбука нейросетей» создана специально для тех, кто начинает с нуля. На воркшопе объясняем всё с самых основ — не страшно задавать любые вопросы.'],
+    ['Что такое воркшоп в отличие от курса?', 'Воркшоп — это живой эфир 2–3 часа, где каждый участник работает над своей конкретной задачей. Не записанные лекции, а практика здесь и сейчас.'],
+    ['Сколько человек в группе?', '8–15 человек. Небольшой размер позволяет каждому получить внимание преподавателя и разобрать свою задачу.'],
+    ['Как выглядит структура воркшопа?', 'Анкета задач → Живой эфир Сессии 1 (2–3 часа) → Неделя практики → Сессия 2 (разбор вопросов). Запись хранится 30 дней.']]
+  },
+  { title: 'Оплата и доступ', items: [
+    ['Как оплатить участие?', 'Оплата через ЮKassa: карта, СБП или ЮMoney. После оплаты вы автоматически получаете ссылку на Яндекс.Телемост и доступ к материалам.'],
+    ['Можно ли вернуть деньги?', 'Да. Полный возврат в течение 24 часов до начала воркшопа. Обратитесь через чат поддержки или email.'],
+    ['Что входит в стоимость?', '2 живые сессии, запись эфира на 30 дней, шаблоны промтов, доступ к базе знаний на 7 дней, чат с преподавателем.'],
+    ['Как работает подписка на базу знаний?', '990–1 500 ₽/мес. Автоматическое списание через ЮKassa каждые 30 дней. Отменить можно в любой момент в личном кабинете.']]
+  },
+  { title: 'Технические вопросы', items: [
+    ['Что нужно для участия?', 'Компьютер или ноутбук с интернетом. Яндекс ID (бесплатная регистрация) для входа в Яндекс.Телемост.'],
+    ['Где хранятся материалы?', 'На Яндекс.Диске — надёжно, без иностранных сервисов. Доступ через ваш Яндекс ID.'],
+    ['Что если не смогу присутствовать на эфире?', 'Запись будет доступна в вашем личном кабинете на 30 дней. Вопросы можно задать письменно до начала сессии 2.'],
+    ['Как работает консультация 1:1?', '60 минут в Яндекс.Телемост с Катей или Таней. Запись сессии и материалы — на ваш Яндекс.Диск.']]
+  },
+  { title: 'Преподаватели', items: [
+    ['Кто ведёт воркшопы?', 'Катя и Таня — эксперты-практики, которые каждый день работают с нейросетями. Каждый воркшоп — живая практика с реальными задачами.'],
+    ['Можно ли выбрать конкретного преподавателя?', 'Да, в карточке воркшопа указан ведущий. Для консультации 1:1 выбирайте Катю или Таню по записи.']]
+  }];
+
+
+  return (
+    <div style={faqStyles.page}>
+      <div style={faqStyles.header}>
+        <div style={faqStyles.headerInner}>
+          <h1 style={faqStyles.h1}>Частые вопросы</h1>
+          <p style={faqStyles.sub}>Ответы на всё, что хотели спросить</p>
+        </div>
+      </div>
+
+      <div style={faqStyles.container}>
+        <div style={faqStyles.main}>
+          {sections.map((s) =>
+          <div key={s.title} style={faqStyles.section}>
+              <h2 style={faqStyles.sectionTitle}>{s.title}</h2>
+              {s.items.map(([q, a], i) => <FaqItem key={i} q={q} a={a} />)}
+            </div>
+          )}
+        </div>
+
+        <div style={faqStyles.sidebar}>
+          <div style={faqStyles.supportCard}>
+            <div style={{ fontSize: 36, marginBottom: 12 }}>💬</div>
+            <h3 style={{ fontWeight: 800, color: '#2D2640', marginBottom: 8 }}>Не нашли ответ?</h3>
+            <p style={{ fontSize: 14, color: '#7B7491', lineHeight: 1.6, marginBottom: 20 }}>Напишите нам — ответим в течение нескольких часов</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {[
+              ['📧', 'Email', 'hello@azbuka-ai.ru'],
+              ['💬', 'Telegram', '@azbuka_ai'],
+              ['📞', 'Телефон', '+7 (800) 000-00-00']].
+              map(([icon, label, val]) =>
+              <div key={label} style={faqStyles.contactRow}>
+                  <span style={{ fontSize: 18 }}>{icon}</span>
+                  <div>
+                    <div style={{ fontSize: 11, color: '#9990b0', fontWeight: 600 }}>{label}</div>
+                    <div style={{ fontSize: 13, color: '#7C6FCD', fontWeight: 700 }}>{val}</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div style={{ ...faqStyles.supportCard, background: 'linear-gradient(135deg,#7C6FCD,#9B8FE0)', color: 'white', marginTop: 16 }}>
+            <div style={{ fontSize: 32, marginBottom: 8 }}>🎁</div>
+            <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 8 }}>Бесплатный урок</div>
+            <div style={{ fontSize: 13, opacity: 0.85, marginBottom: 16 }}>30-минутное введение — что такое нейросети и с чего начать</div>
+            <button style={{ width: '100%', padding: '10px', borderRadius: 12, border: 'none', background: 'white', color: '#7C6FCD', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'Nunito,sans-serif' }}
+            onClick={() => setAuthModal('register')}>
+              Смотреть бесплатно
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>);
+
+};
+
+const faqStyles = {
+  page: { background: '#faf9ff', minHeight: '100vh' },
+  header: { background: 'linear-gradient(135deg,#f7f5ff,#fff0eb)', padding: '48px 24px 32px' },
+  headerInner: { maxWidth: 1200, margin: '0 auto' },
+  h1: { fontSize: 'clamp(28px,4vw,44px)', fontWeight: 800, color: '#2D2640', margin: '0 0 8px' },
+  sub: { fontSize: 16, color: '#9990b0', margin: 0 },
+  container: { maxWidth: 1200, margin: '0 auto', padding: '32px 24px', display: 'flex', gap: 28, alignItems: 'flex-start', flexWrap: 'wrap' },
+  main: { flex: '1 1 520px' },
+  section: { marginBottom: 36 },
+  sectionTitle: { fontSize: 18, fontWeight: 800, color: '#7C6FCD', marginBottom: 8, paddingBottom: 12, borderBottom: '2px solid #ede9ff' },
+  sidebar: { width: 280, flexShrink: 0 },
+  supportCard: { background: 'white', borderRadius: 20, padding: 24, boxShadow: '0 4px 20px rgba(124,111,205,0.08)' },
+  contactRow: { display: 'flex', gap: 12, alignItems: 'center', background: '#f7f5ff', borderRadius: 12, padding: '10px 14px' }
+};
+
+// ---- ABOUT PAGE ----
+const AboutPage = ({ setPage, setAuthModal }) =>
+<div style={{ background: '#faf9ff', minHeight: '100vh' }}>
+    <div style={{ background: 'linear-gradient(135deg,#f7f5ff,#fff0eb)', padding: '48px 24px 32px' }}>
+      <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
+        <h1 style={{ fontSize: 'clamp(28px,4vw,44px)', fontWeight: 800, color: '#2D2640', margin: '0 0 16px' }}>О проекте</h1>
+        <p style={{ fontSize: 16, color: '#7B7491', lineHeight: 1.7, maxWidth: 600, margin: '0 auto' }}>
+          «Азбука нейросетей» — не записанные курсы, а живые воркшопы. Каждый участник приходит со своей конкретной задачей и уходит с готовым результатом.
+        </p>
+      </div>
+    </div>
+
+    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '48px 24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 20, marginBottom: 48 }}>
+        {[
+      { icon: '🎯', title: 'Практический результат', desc: 'Вы работаете над своей задачей прямо на эфире — не слушаете теорию, а получаете результат' },
+      { icon: '👥', title: 'Маленькие группы', desc: '8–15 человек — каждый получает внимание преподавателя и разбор своей задачи' },
+      { icon: '🔄', title: 'Контент всегда актуален', desc: 'Живой формат — информация создаётся здесь и сейчас, не устаревает' },
+      { icon: '🛡️', title: '100% Яндекс 360', desc: 'Никаких иностранных сервисов, никаких блокировок — единый вход через Яндекс ID' }].
+      map((f) =>
+      <div key={f.title} style={{ background: 'white', borderRadius: 20, padding: 28, boxShadow: '0 4px 20px rgba(124,111,205,0.08)' }}>
+            <div style={{ fontSize: 40, marginBottom: 16 }}>{f.icon}</div>
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: '#2D2640', marginBottom: 8 }}>{f.title}</h3>
+            <p style={{ fontSize: 14, color: '#7B7491', lineHeight: 1.6 }}>{f.desc}</p>
+          </div>
+      )}
+      </div>
+
+      <div style={{ textAlign: 'center', marginBottom: 48 }}>
+        <h2 style={{ fontSize: 'clamp(22px,3vw,32px)', fontWeight: 800, color: '#2D2640', marginBottom: 12 }}>Команда</h2>
+        <p style={{ fontSize: 15, color: '#9990b0' }}>Трое, кто строит «Азбуку нейросетей»</p>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 20, marginBottom: 48 }}>
+        {[
+      { name: 'Катя', role: 'Эксперт-ведущий', emoji: '👩‍💻', color: '#ede9ff',
+        desc: 'Работает с нейросетями в дизайне, контенте и консультациях. Проводит воркшопы, создаёт базу знаний и шаблоны промтов.',
+        tags: ['ChatGPT', 'Контент', 'Промты'] },
+      { name: 'Таня', role: 'Эксперт-ведущий', emoji: '👩‍🎨', color: '#fff0eb',
+        desc: 'Эксперт по AI-инструментам для дизайнеров и контент-мейкеров. Даёт альтернативную экспертную точку зрения.',
+        tags: ['Midjourney', 'Дизайн', 'Соцсети'] },
+].
+      map((t) =>
+      <div key={t.name} style={{ background: 'white', borderRadius: 20, padding: '32px 24px', textAlign: 'center', boxShadow: '0 4px 20px rgba(124,111,205,0.08)' }}>
+            <div style={{ width: 80, height: 80, borderRadius: '50%', background: t.color, fontSize: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+              {t.emoji}
+            </div>
+            <h3 style={{ fontSize: 20, fontWeight: 800, color: '#2D2640', marginBottom: 4 }}>{t.name}</h3>
+            <div style={{ fontSize: 12, color: '#7C6FCD', fontWeight: 700, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.role}</div>
+            <p style={{ fontSize: 14, color: '#7B7491', lineHeight: 1.6, marginBottom: 16 }}>{t.desc}</p>
+            <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'wrap' }}>
+              {t.tags.map((tag) => <span key={tag} style={{ background: '#f7f5ff', color: '#7C6FCD', padding: '3px 10px', borderRadius: 8, fontSize: 11, fontWeight: 700 }}>{tag}</span>)}
+            </div>
+          </div>
+      )}
+      </div>
+
+      <div style={{ background: 'linear-gradient(135deg,#7C6FCD,#9B8FE0)', borderRadius: 24, padding: '48px 32px', textAlign: 'center', color: 'white' }}>
+        <h2 style={{ fontSize: 'clamp(22px,3vw,32px)', fontWeight: 800, marginBottom: 12 }}>Готовы попробовать?</h2>
+        <p style={{ fontSize: 15, opacity: 0.85, marginBottom: 28 }}>Начните с бесплатного вводного урока — без обязательств</p>
+        <button style={{ background: 'white', color: '#7C6FCD', border: 'none', borderRadius: 14, padding: '13px 36px', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'Nunito,sans-serif' }}
+      onClick={() => setAuthModal('register')}>
+          Начать бесплатно
+        </button>
+      </div>
+    </div>
+  </div>;
+
+
+// ---- PAYMENT MODAL ----
+const Payment = ({ workshop, onClose, onSuccess }) => {
+  const sbpBase = window.AZBUKA?.sbp || {};
+  const adminOverride = (() => { try { return JSON.parse(localStorage.getItem('az_admin_data')); } catch { return null; } })();
+  const sbp = { ...sbpBase, ...(adminOverride?.sbp || {}) };
+  const w = adminOverride?.workshop ? { ...workshop, ...adminOverride.workshop } : workshop;
+
+  const [step, setStep] = React.useState(1); // 1=form, 2=sbp, 3=done
+  const [form, setForm] = React.useState({ name: '', contact: '' });
+  const [loading, setLoading] = React.useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await fetch('https://formsubmit.co/ajax/antonzhabskiy@gmail.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          _subject: `Заявка: ${w?.title}`,
+          Имя: form.name,
+          Контакт: form.contact,
+          Воркшоп: w?.title,
+          Дата: (w?.date || '') + (w?.time ? ' ' + w.time : ''),
+          Сумма: (w?.price?.toLocaleString() || '') + ' ₽',
+          _captcha: 'false'
+        })
+      });
+    } catch (_) {}
+    setLoading(false);
+    setStep(2);
+  };
+
+  if (step === 3) return (
+    <div style={authStyles.overlay} onClick={onClose}>
+      <div style={{ ...authStyles.modal, textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+        <div style={{ fontSize: 64, marginBottom: 16 }}>🎉</div>
+        <h2 style={{ fontSize: 24, fontWeight: 800, color: '#2D2640', marginBottom: 8 }}>Спасибо!</h2>
+        <p style={{ fontSize: 15, color: '#7B7491', marginBottom: 16 }}>Как только получим оплату — пришлём ссылку на эфир</p>
+        <div style={{ background: '#f7f5ff', borderRadius: 16, padding: 16, marginBottom: 24, textAlign: 'left' }}>
+          <div style={{ fontWeight: 700, color: '#2D2640', marginBottom: 4 }}>{w?.emoji} {w?.title}</div>
+          <div style={{ fontSize: 13, color: '#9990b0' }}>📅 {w?.date}{w?.time ? ' · ⏰ ' + w.time : ''} · 👩‍🏫 {w?.teacher}</div>
+        </div>
+        <button style={{ ...authStyles.submit, marginTop: 0 }} onClick={onClose}>Закрыть</button>
+      </div>
+    </div>);
+
+  if (step === 2) return (
+    <div style={authStyles.overlay} onClick={onClose}>
+      <div style={{ ...authStyles.modal, maxWidth: 460 }} onClick={(e) => e.stopPropagation()}>
+        <button style={authStyles.close} onClick={onClose}>✕</button>
+        <h2 style={{ fontSize: 20, fontWeight: 800, color: '#2D2640', marginBottom: 4 }}>Оплата через СБП</h2>
+        <p style={{ fontSize: 14, color: '#9990b0', marginBottom: 20 }}>Переведите оплату по реквизитам ниже</p>
+        <div style={{ background: '#f7f5ff', borderRadius: 16, padding: 20, marginBottom: 16 }}>
+          {[
+            ['📱 Телефон', sbp.phone],
+            ['👤 Получатель', sbp.recipientName],
+            ['🏦 Банк', sbp.bank],
+            ['💰 Сумма', `${w?.price?.toLocaleString()} ₽`],
+            ['💬 Комментарий', `${w?.title} — ${form.name}`]
+          ].map(([label, value]) =>
+            <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: '1px solid #ede9ff' }}>
+              <span style={{ fontSize: 13, color: '#9990b0' }}>{label}</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#2D2640', textAlign: 'right', maxWidth: '60%' }}>{value}</span>
+            </div>
+          )}
+        </div>
+        <div style={{ background: '#fff8f0', borderRadius: 12, padding: 12, marginBottom: 20, fontSize: 13, color: '#b86a30' }}>
+          💡 В комментарии к переводу напишите ваше имя — так мы сразу найдём вашу заявку
+        </div>
+        <button style={authStyles.submit} onClick={() => setStep(3)}>✅ Я оплатил(а)</button>
+        <div style={{ textAlign: 'center', marginTop: 12, fontSize: 12, color: '#c0bad8' }}>
+          Свяжемся с {form.contact} в течение нескольких часов
+        </div>
+      </div>
+    </div>);
+
+  return (
+    <div style={authStyles.overlay} onClick={onClose}>
+      <div style={{ ...authStyles.modal, maxWidth: 460 }} onClick={(e) => e.stopPropagation()}>
+        <button style={authStyles.close} onClick={onClose}>✕</button>
+        <h2 style={{ fontSize: 20, fontWeight: 800, color: '#2D2640', marginBottom: 4 }}>Записаться на воркшоп</h2>
+        <div style={{ background: '#f7f5ff', borderRadius: 16, padding: 16, marginBottom: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontWeight: 700, color: '#2D2640', fontSize: 15 }}>{w?.emoji} {w?.title}</div>
+              <div style={{ fontSize: 12, color: '#9990b0' }}>📅 {w?.date}{w?.time ? ' · ⏰ ' + w.time : ''} · 👩‍🏫 {w?.teacher}</div>
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#7C6FCD' }}>{w?.price?.toLocaleString()} ₽</div>
+          </div>
+        </div>
+        <form onSubmit={submit}>
+          <div style={authStyles.field}>
+            <label style={authStyles.label}>Ваше имя</label>
+            <input style={authStyles.input} placeholder="Как вас зовут?" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+          </div>
+          <div style={authStyles.field}>
+            <label style={authStyles.label}>Telegram или телефон</label>
+            <input style={authStyles.input} placeholder="@username или +7..." value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} required />
+          </div>
+          <button type="submit" style={authStyles.submit} disabled={loading}>
+            {loading ? '⏳ Отправляем...' : 'Перейти к оплате →'}
+          </button>
+        </form>
+        <div style={{ textAlign: 'center', marginTop: 12, fontSize: 12, color: '#c0bad8' }}>
+          🔒 Оплата через СБП · Возврат если воркшоп отменится
+        </div>
+      </div>
+    </div>);
+};
+
+
+
+// ===== AdminPanel =====
+const AdminPanel = ({ onSave }) => {
+  const password = window.AZBUKA?.adminPassword || 'azbuka2026';
+  const saved0 = (() => { try { return JSON.parse(localStorage.getItem('az_admin_data')); } catch { return null; } })();
+
+  const [authed, setAuthed] = React.useState(() => localStorage.getItem('az_admin_auth') === password);
+  const [pw, setPw] = React.useState('');
+  const [pwErr, setPwErr] = React.useState('');
+  const [savedMsg, setSavedMsg] = React.useState(false);
+  const [data, setData] = React.useState({
+    workshop: {
+      title: saved0?.workshop?.title || '',
+      emoji: saved0?.workshop?.emoji || '🚀',
+      date: saved0?.workshop?.date || '',
+      time: saved0?.workshop?.time || '19:00',
+      price: saved0?.workshop?.price || 2500,
+      seats: saved0?.workshop?.seats || 10,
+      teacher: saved0?.workshop?.teacher || 'Катя',
+      desc: saved0?.workshop?.desc || '',
+    },
+    sbp: {
+      phone: saved0?.sbp?.phone || (window.AZBUKA?.sbp?.phone || ''),
+      recipientName: saved0?.sbp?.recipientName || (window.AZBUKA?.sbp?.recipientName || ''),
+      bank: saved0?.sbp?.bank || (window.AZBUKA?.sbp?.bank || ''),
+    }
+  });
+
+  const setW = (k, v) => setData(d => ({ ...d, workshop: { ...d.workshop, [k]: v } }));
+  const setS = (k, v) => setData(d => ({ ...d, sbp: { ...d.sbp, [k]: v } }));
+
+  const tryLogin = () => {
+    if (pw === password) { localStorage.setItem('az_admin_auth', password); setAuthed(true); }
+    else setPwErr('Неверный пароль');
+  };
+
+  const handleSave = () => {
+    localStorage.setItem('az_admin_data', JSON.stringify(data));
+    if (onSave) onSave(data);
+    setSavedMsg(true);
+    setTimeout(() => setSavedMsg(false), 2500);
+  };
+
+  if (!authed) return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#faf9ff' }}>
+      <div style={{ background: 'white', borderRadius: 24, padding: 40, width: 340, boxShadow: '0 8px 40px rgba(124,111,205,0.12)' }}>
+        <div style={{ fontSize: 40, textAlign: 'center', marginBottom: 12 }}>🔐</div>
+        <h2 style={{ textAlign: 'center', fontWeight: 800, color: '#2D2640', marginBottom: 24 }}>Панель управления</h2>
+        <input style={authStyles.input} type="password" placeholder="Пароль" value={pw}
+          onChange={(e) => setPw(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && tryLogin()} />
+        {pwErr && <div style={{ color: '#e07070', fontSize: 13, marginTop: 4 }}>{pwErr}</div>}
+        <button style={{ ...authStyles.submit, marginTop: 16 }} onClick={tryLogin}>Войти</button>
+      </div>
+    </div>);
+
+  const F = ({ label, value, setter, type = 'text', placeholder = '' }) => (
+    <div style={authStyles.field}>
+      <label style={authStyles.label}>{label}</label>
+      <input style={authStyles.input} type={type} placeholder={placeholder} value={value}
+        onChange={(e) => setter(type === 'number' ? Number(e.target.value) : e.target.value)} />
+    </div>);
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#faf9ff', padding: '40px 16px' }}>
+      <div style={{ maxWidth: 600, margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(135deg,#7C6FCD,#9B8FE0)', color: 'white', fontWeight: 800, fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>А</div>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: 20, color: '#2D2640' }}>Панель управления</div>
+            <div style={{ fontSize: 13, color: '#9990b0' }}>Азбука нейросетей</div>
+          </div>
+          <button style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#9990b0', cursor: 'pointer', fontSize: 13, fontFamily: 'Nunito,sans-serif' }}
+            onClick={() => { localStorage.removeItem('az_admin_auth'); setAuthed(false); }}>Выйти</button>
+        </div>
+
+        <div style={{ background: 'white', borderRadius: 20, padding: 28, boxShadow: '0 4px 24px rgba(124,111,205,0.08)', marginBottom: 20 }}>
+          <div style={{ fontWeight: 800, fontSize: 16, color: '#2D2640', marginBottom: 20 }}>📅 Ближайший воркшоп</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px', gap: '0 12px' }}>
+            <F label="Название воркшопа" value={data.workshop.title} setter={(v) => setW('title', v)} placeholder="AI-карточки для WB/Ozon" />
+            <F label="Эмодзи" value={data.workshop.emoji} setter={(v) => setW('emoji', v)} placeholder="🚀" />
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 12px' }}>
+            <F label="Дата (например: 5 июня)" value={data.workshop.date} setter={(v) => setW('date', v)} placeholder="5 июня" />
+            <F label="Время" value={data.workshop.time} setter={(v) => setW('time', v)} placeholder="19:00" />
+            <F label="Цена (₽)" value={data.workshop.price} setter={(v) => setW('price', v)} type="number" placeholder="2500" />
+            <F label="Мест осталось" value={data.workshop.seats} setter={(v) => setW('seats', v)} type="number" placeholder="10" />
+          </div>
+          <F label="Ведущий" value={data.workshop.teacher} setter={(v) => setW('teacher', v)} placeholder="Катя" />
+          <div style={authStyles.field}>
+            <label style={authStyles.label}>Описание</label>
+            <textarea style={{ ...authStyles.input, height: 80, resize: 'vertical' }} value={data.workshop.desc}
+              onChange={(e) => setW('desc', e.target.value)} placeholder="Краткое описание воркшопа..." />
+          </div>
+        </div>
+
+        <div style={{ background: 'white', borderRadius: 20, padding: 28, boxShadow: '0 4px 24px rgba(124,111,205,0.08)', marginBottom: 24 }}>
+          <div style={{ fontWeight: 800, fontSize: 16, color: '#2D2640', marginBottom: 20 }}>📱 Реквизиты СБП</div>
+          <F label="Номер телефона" value={data.sbp.phone} setter={(v) => setS('phone', v)} placeholder="+7 900 000 00 00" />
+          <F label="Имя получателя" value={data.sbp.recipientName} setter={(v) => setS('recipientName', v)} placeholder="Имя Фамилия" />
+          <F label="Банк" value={data.sbp.bank} setter={(v) => setS('bank', v)} placeholder="Сбер / Тинькофф / ВТБ" />
+        </div>
+
+        <button style={{ ...authStyles.submit, fontSize: 16, padding: '16px 32px', width: '100%' }} onClick={handleSave}>
+          {savedMsg ? '✅ Сохранено!' : '💾 Сохранить изменения'}
+        </button>
+        <div style={{ textAlign: 'center', marginTop: 12, fontSize: 13, color: '#c0bad8' }}>
+          Данные обновятся на сайте сразу после сохранения
+        </div>
+      </div>
+    </div>);
+};
+
+
+// ===== azbuka/App.jsx =====
+// Main App — routing + global state
+const App = () => {
+  const [page, setPageRaw] = React.useState(() => localStorage.getItem('az_page') || 'landing');
+  const [currentUser, setCurrentUser] = React.useState(() => {
+    try {return JSON.parse(localStorage.getItem('az_user'));} catch {return null;}
+  });
+  const [authModal, setAuthModal] = React.useState(null); // null | 'login' | 'register'
+  const [authMode, setAuthMode] = React.useState('login');
+  const [paymentWorkshop, setPaymentWorkshop] = React.useState(null);
+  const [tweaksVisible, setTweaksVisible] = React.useState(false);
+  const [heroVariant, setHeroVariant] = React.useState(() => parseInt(localStorage.getItem('az_hero') || '1'));
+  const [font, setFont] = React.useState(() => localStorage.getItem('az_font') || 'Nunito');
+
+  const [adminData, setAdminData] = React.useState(() => {
+    try { return JSON.parse(localStorage.getItem('az_admin_data')); } catch { return null; }
+  });
+
+  const setPage = (p) => {
+    setPageRaw(p);
+    localStorage.setItem('az_page', p);
+    window.scrollTo({ top: 0 });
+  };
+
+  const handleLogin = (user) => {
+    setCurrentUser(user);
+    localStorage.setItem('az_user', JSON.stringify(user));
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem('az_user');
+  };
+
+  // Tweaks listener
+  React.useEffect(() => {
+    const handler = (e) => {
+      if (e.data?.type === '__activate_edit_mode') setTweaksVisible(true);
+      if (e.data?.type === '__deactivate_edit_mode') setTweaksVisible(false);
+    };
+    window.addEventListener('message', handler);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', handler);
+  }, []);
+
+  const setHero = (v) => {
+    setHeroVariant(v);
+    localStorage.setItem('az_hero', v);
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { heroVariant: v } }, '*');
+  };
+
+  const setFontChoice = (f) => {
+    setFont(f);
+    localStorage.setItem('az_font', f);
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { font: f } }, '*');
+    document.documentElement.style.fontFamily = f + ', sans-serif';
+  };
+
+  // Open auth modal handler
+  const openAuth = (mode) => {
+    setAuthMode(mode);
+    setAuthModal(mode);
+  };
+
+  // Derive workshopId from page like 'workshop-1'
+  const workshopId = page.startsWith('workshop-') ? parseInt(page.split('-')[1]) : null;
+
+  if (page === 'admin') return (
+    <div style={{ fontFamily: font + ', sans-serif' }}>
+      <AdminPanel onSave={(d) => setAdminData(d)} />
+    </div>);
+
+  return (
+    <div style={{ fontFamily: font + ', sans-serif', minHeight: '100vh', background: '#faf9ff' }}>
+      <Nav
+        currentPage={workshopId ? 'catalog' : page}
+        setPage={setPage}
+        currentUser={currentUser}
+        setAuthModal={openAuth}
+        setCurrentUser={handleLogout} />
+
+      {/* Pages */}
+      {page === 'landing' && <Landing setPage={setPage} setAuthModal={openAuth} heroVariant={heroVariant} />}
+      {page === 'catalog' && <Catalog setPage={setPage} setAuthModal={openAuth} currentUser={currentUser} />}
+      {workshopId && <WorkshopDetail workshopId={workshopId} setPage={setPage} setAuthModal={openAuth} currentUser={currentUser} setPaymentWorkshop={setPaymentWorkshop} />}
+      {page === 'student-dashboard' && (currentUser ? <StudentDashboard currentUser={currentUser} setPage={setPage} setAuthModal={openAuth} /> : <AuthGuard setAuthModal={openAuth} setPage={setPage} />)}
+      {page === 'teacher-dashboard' && (currentUser ? <TeacherDashboard currentUser={currentUser} setPage={setPage} /> : <AuthGuard setAuthModal={openAuth} setPage={setPage} />)}
+      {page === 'faq' && <FAQPage setPage={setPage} setAuthModal={openAuth} />}
+      {page === 'about' && <AboutPage setPage={setPage} setAuthModal={openAuth} />}
+      {page === 'how' && <HowPage setPage={setPage} setAuthModal={openAuth} />}
+
+      {/* Footer */}
+      <footer style={appStyles.footer}>
+        <div style={appStyles.footerInner}>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 8 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg,#7C6FCD,#9B8FE0)', color: 'white', fontWeight: 800, fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>А</div>
+            <div style={{ fontWeight: 700, color: '#2D2640' }}>Азбука нейросетей</div>
+          </div>
+          <div style={{ fontSize: 13, color: '#c0bad8', marginBottom: 12 }}>Живые воркшопы по нейросетям для тех, кто начинает с нуля</div>
+          <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', fontSize: 13 }}>
+            {[['Воркшопы', 'catalog'], ['О проекте', 'about'], ['FAQ', 'faq'], ['Контакты', 'faq']].map(([l, p]) =>
+            <button key={l} style={{ background: 'none', border: 'none', color: '#9990b0', cursor: 'pointer', fontSize: 13, padding: 0, fontFamily: 'Nunito,sans-serif' }} onClick={() => setPage(p)}>{l}</button>
+            )}
+          </div>
+          <div style={{ marginTop: 16, fontSize: 12, color: '#d0cadf', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>© 2025 Азбука нейросетей</span>
+            <button style={{ background: 'none', border: 'none', color: '#e8e4f3', cursor: 'pointer', fontSize: 11, fontFamily: 'Nunito,sans-serif', opacity: 0.4 }} onClick={() => setPage('admin')}>⚙</button>
+          </div>
+        </div>
+      </footer>
+
+      {/* Auth modal */}
+      {authModal &&
+      <Auth
+        mode={authMode}
+        setMode={setAuthMode}
+        onClose={() => setAuthModal(null)}
+        onLogin={handleLogin} />
+
+      }
+
+      {/* Payment modal */}
+      {paymentWorkshop &&
+      <Payment
+        workshop={paymentWorkshop}
+        onClose={() => setPaymentWorkshop(null)}
+        onSuccess={() => {
+          setPage(currentUser?.type === 'teacher' ? 'teacher-dashboard' : 'student-dashboard');
+        }} />
+
+      }
+
+      {/* Tweaks panel */}
+      {tweaksVisible &&
+      <div style={appStyles.tweaksPanel}>
+          <div style={appStyles.tweaksTitle}>Tweaks</div>
+
+          <div style={appStyles.tweaksSection}>Hero — вариант</div>
+          {[1, 2, 3].map((v) =>
+        <button key={v} style={{ ...appStyles.tweaksBtn, ...(heroVariant === v ? appStyles.tweaksBtnActive : {}) }}
+        onClick={() => setHero(v)}>
+              {['Светлый (пастель)', 'Тёмный (dark)', 'Центрированный'][v - 1]}
+            </button>
+        )}
+
+          <div style={{ ...appStyles.tweaksSection, marginTop: 12 }}>Шрифт</div>
+          {['Nunito', 'Geologica', 'Onest'].map((f) =>
+        <button key={f} style={{ ...appStyles.tweaksBtn, ...(font === f ? appStyles.tweaksBtnActive : {}) }}
+        onClick={() => setFontChoice(f)}>
+              {f}
+            </button>
+        )}
+
+          <div style={{ ...appStyles.tweaksSection, marginTop: 12 }}>Быстрый вход</div>
+          <button style={appStyles.tweaksBtn} onClick={() => {handleLogin({ name: 'Мария', type: 'student', email: 'm@m.ru' });setPage('student-dashboard');}}>→ Ученик</button>
+          <button style={appStyles.tweaksBtn} onClick={() => {handleLogin({ name: 'Катя', type: 'teacher', email: 'k@k.ru' });setPage('teacher-dashboard');}}>→ Преподаватель</button>
+          <button style={{ ...appStyles.tweaksBtn, color: '#F5856A' }} onClick={() => {handleLogout();setPage('landing');}}>Выйти</button>
+        </div>
+      }
+    </div>);
+
+};
+
+// Auth guard stub
+const AuthGuard = ({ setAuthModal, setPage }) =>
+<div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
+    <div style={{ fontSize: 48 }}>🔒</div>
+    <div style={{ fontSize: 20, fontWeight: 700, color: '#2D2640' }}>Необходима авторизация</div>
+    <div style={{ fontSize: 14, color: '#9990b0' }}>Войдите, чтобы открыть личный кабинет</div>
+    <button style={{ background: 'linear-gradient(135deg,#7C6FCD,#9B8FE0)', border: 'none', color: 'white', borderRadius: 14, padding: '12px 28px', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'Nunito,sans-serif' }}
+  onClick={() => setAuthModal('login')}>Войти</button>
+  </div>;
+
+
+// How it works page
+const HowPage = ({ setPage, setAuthModal }) =>
+<div style={{ background: '#faf9ff', minHeight: '100vh' }}>
+    <div style={{ background: 'linear-gradient(135deg,#f7f5ff,#fff0eb)', padding: '48px 24px 32px' }}>
+      <div style={{ maxWidth: 800, margin: '0 auto' }}>
+        <h1 style={{ fontSize: 'clamp(28px,4vw,44px)', fontWeight: 800, color: '#2D2640', margin: '0 0 8px' }}>Как это работает</h1>
+        <p style={{ fontSize: 16, color: '#9990b0' }}>Весь путь от регистрации до результата</p>
+      </div>
+    </div>
+    <div style={{ maxWidth: 800, margin: '0 auto', padding: '48px 24px' }}>
+      {[
+    { n: 1, icon: '📋', title: 'Выбери ворк и заполни анкету', desc: 'В анкете расскажи свою задачу — мы адаптируем программу под участников группы. Это займёт 2–3 минуты.' },
+    { n: 2, icon: '💳', title: 'Оплати участие через ЮKassa', desc: 'Карта, СБП или ЮMoney. После оплаты автоматически получишь ссылку на Яндекс.Телемост и подтверждение на почту.' },
+    { n: 3, icon: '💻', title: 'Живой воркшоп — 2–3 часа', desc: 'Катя или Таня ведут эфир. Ты работаешь над своей задачей прямо во время занятия — не слушаешь, а делаешь.' },
+    { n: 4, icon: '📚', title: 'Неделя практики', desc: 'Запись воркшопа и материалы появляются в личном кабинете сразу после эфира. Практикуешь и копишь вопросы.' },
+    { n: 5, icon: '💬', title: 'Вторая сессия — разбор', desc: 'Возвращаемся и разбираем накопленные вопросы. Все вопросы типовые — отвечаем углублённо и быстро.' }].
+    map((step, i) =>
+    <div key={step.n} style={{ display: 'flex', gap: 24, marginBottom: 32, position: 'relative' }}>
+          <div style={{ width: 56, height: 56, borderRadius: 20, background: 'linear-gradient(135deg,#7C6FCD,#9B8FE0)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, flexShrink: 0, boxShadow: '0 4px 16px rgba(124,111,205,0.25)' }}>
+            {step.icon}
+          </div>
+          <div style={{ paddingTop: 8 }}>
+            <div style={{ fontSize: 11, color: '#9990b0', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Шаг {step.n}</div>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#2D2640', marginBottom: 8 }}>{step.title}</h3>
+            <p style={{ fontSize: 14, color: '#7B7491', lineHeight: 1.7 }}>{step.desc}</p>
+          </div>
+        </div>
+    )}
+      <div style={{ background: 'linear-gradient(135deg,#7C6FCD,#9B8FE0)', borderRadius: 20, padding: '32px', textAlign: 'center', color: 'white', marginTop: 16 }}>
+        <h3 style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>Готов попробовать?</h3>
+        <p style={{ fontSize: 14, opacity: 0.85, marginBottom: 20 }}>Следующий воркшоп уже 26 апреля</p>
+        <button style={{ background: 'white', color: '#7C6FCD', border: 'none', borderRadius: 14, padding: '12px 32px', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'Nunito,sans-serif' }}
+      onClick={() => setPage('catalog')}>
+          Выбрать воркшоп
+        </button>
+      </div>
+    </div>
+  </div>;
+
+
+const appStyles = {
+  footer: {
+    background: 'white', borderTop: '1px solid #ede9ff',
+    padding: '32px 24px'
+  },
+  footerInner: { maxWidth: 1200, margin: '0 auto' },
+  tweaksPanel: {
+    position: 'fixed', bottom: 24, right: 24, zIndex: 500,
+    background: 'white', borderRadius: 20, padding: 20, width: 220,
+    boxShadow: '0 8px 32px rgba(124,111,205,0.2)', border: '1.5px solid #ede9ff'
+  },
+  tweaksTitle: { fontWeight: 800, color: '#2D2640', marginBottom: 12, fontSize: 15 },
+  tweaksSection: { fontSize: 11, fontWeight: 700, color: '#9990b0', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 },
+  tweaksBtn: {
+    display: 'block', width: '100%', textAlign: 'left',
+    background: '#f7f5ff', border: '1.5px solid transparent',
+    borderRadius: 10, padding: '8px 12px', fontSize: 13, fontWeight: 600,
+    color: '#5a5270', cursor: 'pointer', marginBottom: 6,
+    fontFamily: 'Nunito,sans-serif'
+  },
+  tweaksBtnActive: { borderColor: '#7C6FCD', background: '#f0edff', color: '#7C6FCD' }
+};
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+
+</body></html>
